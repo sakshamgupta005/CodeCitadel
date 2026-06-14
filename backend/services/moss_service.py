@@ -42,7 +42,7 @@ class MossService:
             return None
         if not documents:
             raise InputErrorForEmptyIndex(
-                "No documents were available to index. Import GitHub data or upload a non-empty ticket CSV first."
+                "No documents were available to index. Upload product knowledge first."
             )
 
         settings = get_settings()

@@ -1,32 +1,16 @@
-# Company Brain Backend
+# Moss Product Support Platform Backend
 
-Company Brain is a FastAPI backend for AI-powered organizational memory. It imports GitHub Issues, Pull Requests, Commits, and CSV support tickets, stores them in Moss, retrieves relevant context semantically, and answers questions with cited sources using OpenAI.
+FastAPI backend for a hackathon-ready product support platform. It stores products locally, indexes product documentation into Moss, searches indexed knowledge, answers support questions with Gemini, and runs diagnostic sessions that narrow probable causes over follow-up answers.
 
-## File Tree
+## What It Includes
 
-```text
-backend/
-|-- app.py
-|-- Dockerfile
-|-- requirements.txt
-|-- .env.example
-|-- models/
-|   |-- schemas.py
-|-- routes/
-|   |-- github.py
-|   |-- tickets.py
-|   |-- chat.py
-|-- services/
-|   |-- config.py
-|   |-- exceptions.py
-|   |-- github_service.py
-|   |-- import_tracker.py
-|   |-- ticket_service.py
-|   |-- moss_service.py
-|   |-- llm_service.py
-|-- storage/
-|   |-- .gitkeep
-```
+- Product CRUD with local JSON storage
+- Sample products in `storage/products.json`
+- PDF, text, and URL knowledge ingestion by `product_id`
+- Moss indexing and semantic search
+- Gemini chat and diagnostic generation
+- Diagnostic session state in `storage/diagnostic_sessions.json`
+- Health check and OpenAPI docs
 
 ## Setup
 
@@ -43,135 +27,109 @@ Fill in `backend/.env`:
 ```env
 MOSS_PROJECT_ID=your_moss_project_id
 MOSS_PROJECT_KEY=your_moss_project_key
-GITHUB_TOKEN=your_github_token
-OPENAI_API_KEY=your_openai_api_key
+GEMINI_API_KEY=your_gemini_api_key
 ```
 
-Optional tuning:
-
-```env
-MOSS_INDEX_NAME=company-brain
-MOSS_MODEL_ID=moss-minilm
-MOSS_WAIT_FOR_INDEX_SECONDS=120
-MOSS_SEARCH_ALPHA=0.7
-GITHUB_MAX_PAGES=3
-OPENAI_MODEL=gpt-5.4-mini
-MAX_CONTEXT_CHARS=14000
-```
-
-## Run Locally
-
-Run from the `backend` directory:
+Run locally:
 
 ```powershell
 python -m uvicorn app:app --reload
 ```
 
-Open API docs at `http://localhost:8000/docs`.
-
-## Run With Docker
-
-```powershell
-cd backend
-docker build -t company-brain-backend .
-docker run --env-file .env -p 8000:8000 company-brain-backend
-```
+OpenAPI docs are available at `http://localhost:8000/docs`.
 
 ## API Examples
 
-### Health
+Health:
 
 ```powershell
 curl http://localhost:8000/health
 ```
 
-### Import GitHub Repository
+List sample products:
 
 ```powershell
-curl -X POST http://localhost:8000/github/import `
+curl http://localhost:8000/products
+```
+
+Create a product:
+
+```powershell
+curl -X POST http://localhost:8000/products `
   -H "Content-Type: application/json" `
-  -d "{\"owner\":\"openai\",\"repo\":\"openai-python\"}"
+  -d "{\"id\":\"moss-router-pro\",\"name\":\"Moss Router Pro\",\"category\":\"Networking\",\"description\":\"Tri-band support router.\",\"image_url\":\"https://example.com/router.png\"}"
 ```
 
-### Import Support Tickets
-
-Create `tickets.csv`:
-
-```csv
-ticket,resolution
-Checkout slow,Added DB index
-Payment timeout,Added retries
-```
-
-Upload it:
+Search products by name or category:
 
 ```powershell
-curl -X POST http://localhost:8000/tickets/import `
-  -F "file=@tickets.csv"
+curl "http://localhost:8000/products?query=router"
+curl "http://localhost:8000/products?category=Networking"
 ```
 
-### Import Status
+Upload product PDF knowledge:
+
+```powershell
+curl -X POST http://localhost:8000/products/moss-router-x1/knowledge/pdf `
+  -F "file=@manual.pdf"
+```
+
+Upload product text knowledge:
+
+```powershell
+curl -X POST http://localhost:8000/products/moss-router-x1/knowledge/text `
+  -F "title=Reset guide" `
+  -F "text=Hold the reset button for 10 seconds, then wait for the status light to pulse blue."
+```
+
+Upload product URL knowledge:
+
+```powershell
+curl -X POST http://localhost:8000/products/moss-router-x1/knowledge/url `
+  -H "Content-Type: application/json" `
+  -d "{\"url\":\"https://example.com/router-troubleshooting\",\"title\":\"Router troubleshooting\"}"
+```
+
+Search Moss knowledge:
+
+```powershell
+curl -X POST http://localhost:8000/search `
+  -H "Content-Type: application/json" `
+  -d "{\"query\":\"router keeps dropping wifi\",\"top_k\":10}"
+```
+
+Chat over indexed knowledge:
+
+```powershell
+curl -X POST http://localhost:8000/chat `
+  -H "Content-Type: application/json" `
+  -d "{\"query\":\"How do I reset the Moss Router X1?\",\"top_k\":8}"
+```
+
+Start a diagnostic session:
+
+```powershell
+curl -X POST http://localhost:8000/products/moss-router-x1/diagnose `
+  -H "Content-Type: application/json" `
+  -d "{\"issue_description\":\"The router powers on but drops Wi-Fi every few minutes.\"}"
+```
+
+Continue a diagnostic session:
+
+```powershell
+curl -X POST http://localhost:8000/products/moss-router-x1/diagnose `
+  -H "Content-Type: application/json" `
+  -d "{\"session_id\":\"SESSION_ID_FROM_PREVIOUS_RESPONSE\",\"answer\":\"The status light pulses amber before disconnecting.\"}"
+```
+
+Import status:
 
 ```powershell
 curl http://localhost:8000/import/status
 ```
 
-Returns active imports, the latest import, and recent import history for this running process.
+## Notes
 
-### Repository Statistics
-
-```powershell
-curl http://localhost:8000/github/stats
-```
-
-Returns per-repository document counts from GitHub imports completed during this running process.
-
-### Search Indexed Knowledge
-
-```powershell
-curl -X POST http://localhost:8000/search `
-  -H "Content-Type: application/json" `
-  -d "{\"query\":\"Why is checkout slow?\",\"top_k\":10}"
-```
-
-### Ask Company Brain
-
-```powershell
-curl -X POST http://localhost:8000/chat `
-  -H "Content-Type: application/json" `
-  -d "{\"query\":\"Why was checkout rewritten?\",\"top_k\":10}"
-```
-
-Example response:
-
-```json
-{
-  "answer": "Checkout was slow because the support ticket says the resolution was adding a DB index. [Source 1]",
-  "sources": [
-    {
-      "source": "ticket",
-      "type": "support_ticket",
-      "url": null,
-      "id": "ticket:...",
-      "citation": "[Source 1]",
-      "title": null,
-      "repo": null,
-      "score": 0.82,
-      "snippet": "Support ticket: Checkout slow Resolution: Added DB index"
-    }
-  ]
-}
-```
-
-If indexed context does not contain evidence, the model is instructed to return:
-
-```text
-I could not find evidence in the indexed company knowledge.
-```
-
-## Demo Notes
-
-- GitHub imports are capped by `GITHUB_MAX_PAGES` to keep demos quick.
-- Import status and repository stats are in-memory and reset when the server restarts.
-- Moss writes are awaited for up to `MOSS_WAIT_FOR_INDEX_SECONDS`; set it to `0` to skip waiting.
-- Moss queries attempt to load the index locally for fast retrieval and fall back to Moss cloud query behavior if local loading is unavailable.
+- The legacy GitHub importer code remains in the repository but is no longer mounted as the primary API workflow.
+- Moss index/query behavior is preserved in `services/moss_service.py`.
+- PDFs require `pypdf`, included in `requirements.txt`.

@@ -18,7 +18,14 @@ class ImportTracker:
         self._last_import_id: str | None = None
         self._lock = Lock()
 
-    def start(self, source: str, index_name: str, repo: str | None = None, filename: str | None = None) -> str:
+    def start(
+        self,
+        source: str,
+        index_name: str,
+        repo: str | None = None,
+        filename: str | None = None,
+        product_id: str | None = None,
+    ) -> str:
         import_id = str(uuid4())
         status = ImportStatus(
             import_id=import_id,
@@ -27,6 +34,7 @@ class ImportTracker:
             index_name=index_name,
             repo=repo,
             filename=filename,
+            product_id=product_id,
             message="Import started.",
             started_at=self._now(),
         )

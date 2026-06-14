@@ -1,1 +1,1 @@
-"""FastAPI routers for Company Brain."""
+"""FastAPI routers for the product support backend."""

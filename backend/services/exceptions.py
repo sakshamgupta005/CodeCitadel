@@ -23,3 +23,8 @@ class ExternalServiceError(AppError):
 class InputValidationError(AppError):
     status_code = 400
     error_type = "input_validation_error"
+
+
+class NotFoundError(AppError):
+    status_code = 404
+    error_type = "not_found"

@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from models.schemas import ErrorResponse, ImportStatusResponse
-from routes import chat, github, tickets
+from routes import chat, products
 from services.exceptions import AppError
 from services.import_tracker import import_tracker
 
@@ -21,8 +21,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
-    title="Company Brain API",
-    description="AI-powered organizational memory over GitHub activity and support tickets.",
+    title="Moss Product Support Platform API",
+    description="Product support backend with Moss knowledge indexing, search, chat, and diagnostics.",
     version="0.1.0",
 )
 
@@ -71,6 +71,5 @@ async def import_status() -> ImportStatusResponse:
     )
 
 
-app.include_router(github.router)
-app.include_router(tickets.router)
+app.include_router(products.router)
 app.include_router(chat.router)

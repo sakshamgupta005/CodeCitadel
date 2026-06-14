@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, HttpUrl
 
 
 class KnowledgeDocument(BaseModel):
@@ -22,6 +22,7 @@ class ImportResponse(BaseModel):
     index_name: str
     job_id: str | None = None
     import_id: str | None = None
+    product_id: str | None = None
     message: str
 
 
@@ -55,6 +56,9 @@ class Source(BaseModel):
     citation: str | None = None
     title: str | None = None
     repo: str | None = None
+    product_id: str | None = None
+    product_name: str | None = None
+    product_category: str | None = None
     score: float | None = None
     snippet: str | None = None
 
@@ -79,6 +83,7 @@ class ImportStatus(BaseModel):
     job_id: str | None = None
     repo: str | None = None
     filename: str | None = None
+    product_id: str | None = None
     message: str
     error: str | None = None
     started_at: str
@@ -103,6 +108,62 @@ class RepositoryStats(BaseModel):
 
 class RepositoryStatsResponse(BaseModel):
     repositories: list[RepositoryStats]
+
+
+class ProductCreate(BaseModel):
+    id: str | None = Field(default=None, min_length=1, examples=["moss-router-x1"])
+    name: str = Field(..., min_length=1, examples=["Moss Router X1"])
+    category: str = Field(..., min_length=1, examples=["Networking"])
+    description: str = Field(..., min_length=1)
+    image_url: str = Field(..., min_length=1)
+
+
+class Product(BaseModel):
+    id: str
+    name: str
+    category: str
+    description: str
+    image_url: str
+
+
+class UrlKnowledgeRequest(BaseModel):
+    url: HttpUrl
+    title: str | None = Field(default=None, min_length=1)
+
+
+class TextKnowledgeRequest(BaseModel):
+    title: str | None = Field(default=None, min_length=1)
+    text: str = Field(..., min_length=1)
+
+
+class DiagnosticRequest(BaseModel):
+    issue_description: str | None = Field(
+        default=None,
+        min_length=1,
+        examples=["The device powers on but keeps dropping Wi-Fi every few minutes."],
+    )
+    session_id: str | None = Field(default=None, min_length=1)
+    answer: str | None = Field(default=None, min_length=1)
+    top_k: int = Field(default=8, ge=1, le=25)
+
+
+class DiagnosticReference(BaseModel):
+    source: str
+    type: str
+    id: str | None = None
+    title: str | None = None
+    url: str | None = None
+    score: float | None = None
+    snippet: str | None = None
+
+
+class DiagnosticResponse(BaseModel):
+    session_id: str
+    probable_causes: list[str]
+    follow_up_question: str
+    next_step: str
+    recommended_action: str
+    documentation_references: list[DiagnosticReference]
 
 
 def clean_metadata(metadata: dict[str, Any]) -> dict[str, str]:

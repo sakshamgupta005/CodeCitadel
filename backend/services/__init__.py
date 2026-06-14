@@ -1,1 +1,1 @@
-"""Service modules for Company Brain."""
+"""Service modules for the product support backend."""

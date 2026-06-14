@@ -59,6 +59,9 @@ def _dedupe_sources(results: list[object]) -> list[Source]:
                 citation=f"[Source {index}]",
                 title=metadata.get("title"),
                 repo=metadata.get("repo"),
+                product_id=metadata.get("product_id"),
+                product_name=metadata.get("product_name"),
+                product_category=metadata.get("product_category"),
                 score=getattr(result, "score", None),
                 snippet=snippet,
             )

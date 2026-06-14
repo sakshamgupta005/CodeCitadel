@@ -1,0 +1,23 @@
+[
+  {
+    "id": "moss-router-x1",
+    "name": "Moss Router X1",
+    "category": "Networking",
+    "description": "Compact mesh router for small offices and hackathon demos.",
+    "image_url": "https://images.unsplash.com/photo-1606904825846-647eb07f5be2"
+  },
+  {
+    "id": "aero-clean-500",
+    "name": "AeroClean 500",
+    "category": "Home Appliances",
+    "description": "Smart air purifier with replaceable HEPA filter and Wi-Fi controls.",
+    "image_url": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64"
+  },
+  {
+    "id": "thermopro-2",
+    "name": "ThermoPro 2",
+    "category": "IoT Sensors",
+    "description": "Wireless temperature sensor with long-life battery and mobile alerts.",
+    "image_url": "https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b"
+  }
+]

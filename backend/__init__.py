@@ -1,1 +1,1 @@
-"""Company Brain backend package."""
+"""Moss Product Support Platform backend package."""

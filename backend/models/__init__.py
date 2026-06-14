@@ -1,1 +1,1 @@
-"""Pydantic schemas for Company Brain."""
+"""Pydantic schemas for the product support backend."""
