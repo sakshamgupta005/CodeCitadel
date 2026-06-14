@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { ProductDetailView } from "@/components/ProductDetailView";
-import { getProduct } from "@/lib/api";
+import { getProduct } from "@/lib/server-api";
 
 export default async function ProductDetailsPage({
   params,

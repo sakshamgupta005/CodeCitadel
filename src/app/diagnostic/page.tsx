@@ -1,6 +1,6 @@
 import { AppShell } from "@/components/AppShell";
 import { DiagnosticAssistant } from "@/components/DiagnosticAssistant";
-import { getProduct, getProducts } from "@/lib/api";
+import { getProduct, getProducts } from "@/lib/server-api";
 import Link from "next/link";
 
 export default async function DiagnosticPage({

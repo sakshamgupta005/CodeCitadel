@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { commonIssues, documentation, formatNumber } from "@/lib/design-data";
+import { formatNumber } from "@/lib/design-data";
 import type { ProductView } from "@/lib/types";
 
 export function ProductDetailView({ product }: { product: ProductView }) {

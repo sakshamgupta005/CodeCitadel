@@ -85,7 +85,7 @@ export function DashboardView({
                 });
               }, 4000);
             } else if (matchingImport.status === "failed") {
-              next[prodId] = { status: "failed", error: matchingImport.error || "Failed indexing" };
+              next[prodId] = { status: "failed", error: matchingImport.message || "Failed indexing" };
               updated = true;
             }
           }
@@ -112,7 +112,7 @@ export function DashboardView({
     setProdName(product.name);
     setProdCategory(product.category);
     setProdDescription(product.description || "");
-    setProdImageUrl(product.imageUrl || "");
+    setProdImageUrl(product.image_url || "");
     setAddError("");
     setActiveModal("edit-product");
   };

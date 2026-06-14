@@ -161,6 +161,7 @@ export function toProductView(product: Product): ProductView {
 
   // Dynamic generation for user-added products
   const category = product.category;
+  const fallbackDocumentation = getFallbackDocumentation(category);
   const emoji = category.toLowerCase().includes("network")
     ? "📡"
     : category.toLowerCase().includes("sensor")
@@ -176,14 +177,14 @@ export function toProductView(product: Product): ProductView {
     emoji,
     company: product.category,
     model: "Indexed product",
-    docs: 0,
+    docs: fallbackDocumentation.length,
     sessions: 0,
     resolutionRate: 100,
     manufacturer: product.category,
     year: `${new Date().getFullYear()} - Present`,
     productType: product.category,
     commonIssues: getFallbackCommonIssues(category),
-    documentation: getFallbackDocumentation(category),
+    documentation: fallbackDocumentation,
   };
 }
 

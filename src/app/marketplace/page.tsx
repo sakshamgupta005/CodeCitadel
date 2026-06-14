@@ -1,6 +1,6 @@
 import { AppShell } from "@/components/AppShell";
 import { MarketplaceView } from "@/components/MarketplaceView";
-import { getProducts } from "@/lib/api";
+import { getProducts } from "@/lib/server-api";
 
 export default async function MarketplacePage({
   searchParams,

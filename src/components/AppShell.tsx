@@ -15,7 +15,7 @@ const mobileItems = [
   { href: "/marketplace", icon: "🔍", label: "Products" },
   { href: "/diagnostic",  icon: "🧠", label: "Diagnose" },
   { href: "/dashboard",   icon: "📊", label: "Dashboard" },
-  { href: "/dashboard",   icon: "👤", label: "Account" },
+  { href: "/login",       icon: "👤", label: "Account" },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -67,8 +67,8 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
               {theme === "dark" ? "☀️" : "🌙"}
             </button>
-            <Link className="mock-nav-cta" href="/dashboard">
-              Start for free
+            <Link className="mock-nav-cta" href="/login">
+              Sign in
             </Link>
           </div>
         </nav>

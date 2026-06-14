@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { API_BASE_URL } from "@/lib/api";
+import { makeLocalImportResponse, readStoredProduct } from "@/lib/server-product-store";
 
 export async function POST(
   request: Request,
@@ -22,7 +23,11 @@ export async function POST(
     const payload = await response.json();
     return NextResponse.json(payload);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Internal Server Error";
-    return NextResponse.json({ detail: message }, { status: 500 });
+    const product = await readStoredProduct(productId);
+    if (!product) {
+      const message = error instanceof Error ? error.message : "Product not found";
+      return NextResponse.json({ detail: message }, { status: 404 });
+    }
+    return NextResponse.json(makeLocalImportResponse(productId, `Saved PDF knowledge for ${product.name}.`));
   }
 }

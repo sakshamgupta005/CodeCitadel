@@ -2,6 +2,7 @@ import Link from "next/link";
 import { categories } from "@/lib/design-data";
 import type { ProductView } from "@/lib/types";
 import { ProductCard } from "@/components/ProductCard";
+import { ProductUploader } from "@/components/ProductUploader";
 
 export function MarketplaceView({
   products,
@@ -27,6 +28,7 @@ export function MarketplaceView({
             a guided troubleshooting session.
           </p>
         </div>
+        <ProductUploader />
       </div>
 
       <form className="toolbar" action="/marketplace">
