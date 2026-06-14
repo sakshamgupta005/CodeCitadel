@@ -90,3 +90,37 @@ export async function createProduct(payload: {
 
   return response.json() as Promise<Product>;
 }
+
+export async function updateProduct(
+  productId: string,
+  payload: {
+    name: string;
+    category: string;
+    description: string;
+    image_url: string;
+  }
+): Promise<Product> {
+  const response = await fetch(`/api/products/${productId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData?.detail || `Failed to update product: ${response.status}`);
+  }
+
+  return response.json() as Promise<Product>;
+}
+
+export async function deleteProduct(productId: string): Promise<void> {
+  const response = await fetch(`/api/products/${productId}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData?.detail || `Failed to delete product: ${response.status}`);
+  }
+}

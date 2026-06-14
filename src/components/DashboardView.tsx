@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { formatNumber, toProductView } from "@/lib/design-data";
 import type { ImportStatusResponse, ProductView } from "@/lib/types";
-import { createProduct, getImportStatus } from "@/lib/api";
+import { createProduct, getImportStatus, updateProduct, deleteProduct } from "@/lib/api";
 
 type ImportState = {
   status: "uploading" | "processing" | "indexed" | "failed";
@@ -23,7 +23,7 @@ export function DashboardView({
   const [activeImports, setActiveImports] = useState<Record<string, ImportState>>({});
   
   // Modals state
-  const [activeModal, setActiveModal] = useState<"add-product" | "upload-doc" | null>(null);
+  const [activeModal, setActiveModal] = useState<"add-product" | "edit-product" | "upload-doc" | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<ProductView | null>(null);
 
   // Form states - Add Product
@@ -107,6 +107,26 @@ export function DashboardView({
     setActiveModal("add-product");
   };
 
+  const handleOpenEditModal = (product: ProductView) => {
+    setSelectedProduct(product);
+    setProdName(product.name);
+    setProdCategory(product.category);
+    setProdDescription(product.description || "");
+    setProdImageUrl(product.imageUrl || "");
+    setAddError("");
+    setActiveModal("edit-product");
+  };
+
+  const handleDeleteClick = async (productId: string) => {
+    if (!confirm("Are you sure you want to delete this product?")) return;
+    try {
+      await deleteProduct(productId);
+      setProductList((curr) => curr.filter((p) => p.id !== productId));
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to delete product.");
+    }
+  };
+
   const handleOpenUploadModal = (product: ProductView) => {
     setSelectedProduct(product);
     setUploadType("pdf");
@@ -143,6 +163,41 @@ export function DashboardView({
       mapped.resolutionRate = 100;
 
       setProductList((curr) => [...curr, mapped]);
+      setActiveModal(null);
+    } catch (err) {
+      setAddError(err instanceof Error ? err.message : "An error occurred.");
+    } finally {
+      setIsSubmittingProd(false);
+    }
+  };
+
+  const handleEditProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedProduct) return;
+    if (!prodName.trim() || !prodDescription.trim()) {
+      setAddError("Name and description are required.");
+      return;
+    }
+
+    setAddError("");
+    setIsSubmittingProd(true);
+    try {
+      const finalImg = prodImageUrl.trim() || "https://images.unsplash.com/photo-1558618666-fcd25c85cd64";
+      const updated = await updateProduct(selectedProduct.id, {
+        name: prodName.trim(),
+        category: prodCategory,
+        description: prodDescription.trim(),
+        image_url: finalImg,
+      });
+
+      const mapped = toProductView(updated);
+      mapped.docs = selectedProduct.docs;
+      mapped.sessions = selectedProduct.sessions;
+      mapped.resolutionRate = selectedProduct.resolutionRate;
+
+      setProductList((curr) =>
+        curr.map((p) => (p.id === selectedProduct.id ? mapped : p))
+      );
       setActiveModal(null);
     } catch (err) {
       setAddError(err instanceof Error ? err.message : "An error occurred.");
@@ -312,8 +367,10 @@ export function DashboardView({
                       <span className="mock-status-badge live">Live</span>
                     )}
                   </div>
-                  <div className="mock-table-actions">
-                    <button className="mock-action-btn" onClick={() => handleOpenUploadModal(product)}>+Doc</button>
+                  <div className="mock-table-actions" style={{ display: "flex", gap: "8px" }}>
+                    <button className="mock-action-btn" onClick={() => handleOpenUploadModal(product)} title="Add Knowledge">+Doc</button>
+                    <button className="mock-action-btn" onClick={() => handleOpenEditModal(product)} title="Edit Product" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--text-primary)" }}>Edit</button>
+                    <button className="mock-action-btn" onClick={() => handleDeleteClick(product.id)} title="Delete Product" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", color: "var(--red)" }}>Del</button>
                   </div>
                 </div>
               );
@@ -392,6 +449,77 @@ export function DashboardView({
                 <button type="button" className="btn-secondary" onClick={() => setActiveModal(null)}>Cancel</button>
                 <button type="submit" className="btn-primary" disabled={isSubmittingProd}>
                   {isSubmittingProd ? "Creating..." : "Add Product"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: EDIT PRODUCT */}
+      {activeModal === "edit-product" && selectedProduct && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2 className="modal-title">⚡ Edit Product: {selectedProduct.name}</h2>
+              <button className="modal-close" onClick={() => setActiveModal(null)}>✕</button>
+            </div>
+            <form onSubmit={handleEditProduct}>
+              {addError && (
+                <div style={{ color: "var(--red)", fontSize: 12, marginBottom: 12, border: "1px solid rgba(239,68,68,0.2)", padding: 8, borderRadius: 6, background: "rgba(239,68,68,0.05)" }}>
+                  {addError}
+                </div>
+              )}
+              <div className="form-group">
+                <label className="form-label">Product Name</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="e.g. Moss Router X1"
+                  value={prodName}
+                  onChange={(e) => setProdName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Category</label>
+                <select
+                  className="form-select"
+                  value={prodCategory}
+                  onChange={(e) => setProdCategory(e.target.value)}
+                >
+                  <option value="Industrial">Industrial</option>
+                  <option value="Appliances">Appliances</option>
+                  <option value="Electronics">Electronics</option>
+                  <option value="Automotive">Automotive</option>
+                  <option value="HVAC">HVAC</option>
+                  <option value="Networking">Networking</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Description</label>
+                <textarea
+                  className="form-textarea"
+                  placeholder="Enter a brief product overview..."
+                  value={prodDescription}
+                  onChange={(e) => setProdDescription(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Image URL (Optional)</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="https://images.unsplash.com/photo-..."
+                  value={prodImageUrl}
+                  onChange={(e) => setProdImageUrl(e.target.value)}
+                />
+              </div>
+              <div className="modal-actions">
+                <button type="button" className="btn-secondary" onClick={() => setActiveModal(null)}>Cancel</button>
+                <button type="submit" className="btn-primary" disabled={isSubmittingProd}>
+                  {isSubmittingProd ? "Saving..." : "Save Changes"}
                 </button>
               </div>
             </form>
