@@ -201,6 +201,7 @@ class ProductStore:
         latest_question: str,
         next_step: str,
         recommended_action: str,
+        investigation_reasoning: str | None = None,
     ) -> dict[str, object]:
         with self._lock:
             sessions = self._read_json_unlocked(self.sessions_path, {})
@@ -211,6 +212,8 @@ class ProductStore:
             session["latest_question"] = latest_question
             session["next_step"] = next_step
             session["recommended_action"] = recommended_action
+            if investigation_reasoning:
+                session["investigation_reasoning"] = investigation_reasoning
             session["updated_at"] = self._now()
             sessions[session_id] = session
             self._write_json_unlocked(self.sessions_path, sessions)

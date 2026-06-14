@@ -1,5 +1,5 @@
 import { fallbackProducts, toProductView } from "@/lib/design-data";
-import type { ImportStatusResponse, Product, ProductView } from "@/lib/types";
+import type { ImportStatusResponse, Product, ProductView, DiagnosticResponse } from "@/lib/types";
 
 export const API_BASE_URL =
   process.env.API_BASE_URL ??
@@ -123,4 +123,23 @@ export async function deleteProduct(productId: string): Promise<void> {
     const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData?.detail || `Failed to delete product: ${response.status}`);
   }
+}
+
+export async function diagnoseGlobal(payload: {
+  issue_description: string;
+  session_id?: string;
+  top_k?: number;
+}): Promise<DiagnosticResponse> {
+  const response = await fetch("/api/diagnose/global", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData?.detail || `Failed global diagnosis: ${response.status}`);
+  }
+
+  return response.json() as Promise<DiagnosticResponse>;
 }

@@ -152,6 +152,8 @@ class DiagnosticReference(BaseModel):
     type: str
     id: str | None = None
     title: str | None = None
+    section: str | None = None
+    page: str | None = None
     url: str | None = None
     score: float | None = None
     snippet: str | None = None
@@ -160,6 +162,7 @@ class DiagnosticReference(BaseModel):
 class DiagnosticResponse(BaseModel):
     session_id: str
     probable_causes: list[str]
+    investigation_reasoning: str
     follow_up_question: str
     next_step: str
     recommended_action: str

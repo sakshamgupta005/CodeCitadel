@@ -71,5 +71,14 @@ async def import_status() -> ImportStatusResponse:
     )
 
 
+@app.on_event("startup")
+async def startup_event():
+    try:
+        from services.seeder import seed_all_documents
+        await seed_all_documents()
+    except Exception as exc:
+        logger.error("Failed to run document seeding on startup: %s", exc)
+
+
 app.include_router(products.router)
 app.include_router(chat.router)

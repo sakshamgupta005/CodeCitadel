@@ -47,10 +47,12 @@ class DiagnosticService:
                 latest_question=latest_question,
                 next_step=next_step,
                 recommended_action=recommended_action,
+                investigation_reasoning="No documentation was retrieved for this product. Diagnostics cannot proceed.",
             )
             return DiagnosticResponse(
                 session_id=str(session["id"]),
                 probable_causes=[],
+                investigation_reasoning="No documentation was retrieved for this product. Diagnostics cannot proceed.",
                 follow_up_question=latest_question,
                 next_step=next_step,
                 recommended_action=recommended_action,
@@ -70,11 +72,57 @@ class DiagnosticService:
             latest_question=diagnosis["follow_up_question"],
             next_step=diagnosis["next_step"],
             recommended_action=diagnosis["recommended_action"],
+            investigation_reasoning=diagnosis["investigation_reasoning"],
         )
 
         return DiagnosticResponse(
             session_id=str(session["id"]),
             probable_causes=diagnosis["probable_causes"],
+            investigation_reasoning=diagnosis["investigation_reasoning"],
+            follow_up_question=diagnosis["follow_up_question"],
+            next_step=diagnosis["next_step"],
+            recommended_action=diagnosis["recommended_action"],
+            documentation_references=self._references(documents),
+        )
+
+    async def diagnose_global(self, payload: DiagnosticRequest) -> DiagnosticResponse:
+        session_id = payload.session_id or "global"
+        
+        issue_description = payload.issue_description.strip() if payload.issue_description else ""
+        if not issue_description:
+            raise InputValidationError("issue_description is required for global diagnostics.")
+
+        # Search across all documents (no product id filter)
+        raw_results = await self.moss_service.search_documents(query=issue_description, top_k=payload.top_k)
+        
+        # Filter documents that represent product knowledge
+        documents = [
+            result for result in raw_results
+            if result.metadata.get("source") == "product_knowledge"
+        ]
+
+        if not documents:
+            latest_question = "Which of our products are you referring to? I couldn't find matches in our documentation."
+            return DiagnosticResponse(
+                session_id=session_id,
+                probable_causes=["Unknown Product"],
+                investigation_reasoning="The symptom query did not return any matches in our product manuals.",
+                follow_up_question=latest_question,
+                next_step="Please specify the product model or describe the device.",
+                recommended_action="Please select a product from the list to begin specific diagnostics.",
+                documentation_references=[],
+            )
+
+        # Diagnose global issue
+        diagnosis = await self.llm_service.diagnose_global_issue(
+            issue_description=issue_description,
+            documents=documents,
+        )
+
+        return DiagnosticResponse(
+            session_id=session_id,
+            probable_causes=diagnosis["probable_causes"],
+            investigation_reasoning=diagnosis["investigation_reasoning"],
             follow_up_question=diagnosis["follow_up_question"],
             next_step=diagnosis["next_step"],
             recommended_action=diagnosis["recommended_action"],
@@ -134,13 +182,20 @@ class DiagnosticService:
         references = []
         for document in documents:
             metadata = document.metadata
-            snippet = document.text[:240].replace("\n", " ").strip()
+            clean_text = document.text
+            if "\n\n" in clean_text:
+                parts = clean_text.split("\n\n", 1)
+                if len(parts) > 1 and "Product:" in parts[0]:
+                    clean_text = parts[1]
+            snippet = clean_text[:240].replace("\n", " ").strip()
             references.append(
                 DiagnosticReference(
                     source=metadata.get("source", ""),
                     type=metadata.get("type", ""),
                     id=document.id,
                     title=metadata.get("title"),
+                    section=metadata.get("section"),
+                    page=metadata.get("page"),
                     url=metadata.get("url"),
                     score=document.score,
                     snippet=snippet,

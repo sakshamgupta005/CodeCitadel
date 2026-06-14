@@ -55,7 +55,8 @@ class LLMService:
         if parsed is None:
             logger.warning("Gemini diagnostic response was not valid JSON; using fallback parser")
             return {
-                "probable_causes": [answer.strip() or "Insufficient documentation evidence."],
+                "probable_causes": ["Insufficient documentation evidence."],
+                "investigation_reasoning": answer.strip() or "No diagnostic details could be generated from context.",
                 "follow_up_question": "What exact behavior do you observe right before the issue happens?",
                 "next_step": "Collect one more symptom and compare it against the referenced documentation.",
                 "recommended_action": "Review the retrieved product documentation before taking corrective action.",
@@ -63,12 +64,72 @@ class LLMService:
 
         return {
             "probable_causes": self._string_list(parsed.get("probable_causes")),
+            "investigation_reasoning": str(parsed.get("investigation_reasoning") or "").strip()
+            or "Based on the symptom, we need to inspect the connection and physical indicators.",
             "follow_up_question": str(parsed.get("follow_up_question") or "").strip()
             or "What exact behavior do you observe right before the issue happens?",
             "next_step": str(parsed.get("next_step") or "").strip()
             or "Collect one more symptom and compare it against the referenced documentation.",
             "recommended_action": str(parsed.get("recommended_action") or "").strip()
             or "Review the retrieved product documentation before taking corrective action.",
+        }
+
+    async def diagnose_global_issue(
+        self,
+        issue_description: str,
+        documents: list[SearchResultItem],
+    ) -> dict[str, Any]:
+        prompt = f"User issue description: {issue_description}\n\nRetrieved context:\n"
+        for idx, doc in enumerate(documents, start=1):
+            metadata = doc.metadata
+            prompt += (
+                f"[Source {idx}]\n"
+                f"id: {doc.id}\n"
+                f"product_id: {metadata.get('product_id', '')}\n"
+                f"product_name: {metadata.get('product_name', '')}\n"
+                f"title: {metadata.get('title', '')}\n"
+                f"text:\n{doc.text}\n---\n"
+            )
+
+        instructions = (
+            "You are a global support router and diagnostic assistant. Analyze the user's issue and search the retrieved "
+            "context to identify which product they are asking about. "
+            "You MUST return a single, valid JSON object with the following keys:\n"
+            '- "detected_product_id": the product_id of the matching product, or null if none match\n'
+            '- "detected_product_name": the name of the matching product, or null if none match\n'
+            '- "investigation_reasoning": a paragraph of 2-3 sentences explaining which product matches the symptom and why, based on the documentation\n'
+            '- "probable_causes": a list of short strings showing likely causes\n'
+            '- "follow_up_question": a question asking the user if they want to select the detected product, or clarifying their model\n'
+            '- "next_step": a step description (e.g. "Select product for diagnostics")\n'
+            '- "recommended_action": "Click Select to open the diagnostic assistant for this product"\n'
+            "Ensure the output starts with '{' and ends with '}'. Do not wrap the JSON in markdown code blocks. Do not add any text before or after the JSON."
+        )
+
+        answer = await self._generate_text(
+            instructions=instructions,
+            prompt=prompt,
+            temperature=0.2,
+        )
+        parsed = self._parse_json_object(answer)
+        if parsed is None:
+            return {
+                "detected_product_id": None,
+                "detected_product_name": None,
+                "investigation_reasoning": "We need to clarify which device is experiencing the problem.",
+                "probable_causes": ["Unknown Product"],
+                "follow_up_question": "Which of our products are you referring to?",
+                "next_step": "Identify product",
+                "recommended_action": "Select a product from the list to begin specific diagnostics.",
+            }
+
+        return {
+            "detected_product_id": parsed.get("detected_product_id") or None,
+            "detected_product_name": parsed.get("detected_product_name") or None,
+            "investigation_reasoning": str(parsed.get("investigation_reasoning") or "").strip(),
+            "probable_causes": self._string_list(parsed.get("probable_causes")),
+            "follow_up_question": str(parsed.get("follow_up_question") or "").strip(),
+            "next_step": str(parsed.get("next_step") or "").strip(),
+            "recommended_action": str(parsed.get("recommended_action") or "").strip(),
         }
 
     async def _generate_text(self, instructions: str, prompt: str, temperature: float = 0.1) -> str:
@@ -125,12 +186,15 @@ class LLMService:
     @staticmethod
     def _diagnostic_instructions() -> str:
         return (
-            "You are a product diagnostic assistant. Use only the retrieved product documentation and "
-            "the diagnostic session history. You MUST return a single, valid JSON object with the following keys:\n"
-            '- "probable_causes": a list of short strings indicating the most likely causes of the issue\n'
-            '- "follow_up_question": a single clarifying question to narrow down the cause\n'
-            '- "next_step": a short description of the next troubleshooting step\n'
-            '- "recommended_action": a recommended action for the user to resolve the issue\n'
+            "You are a professional product support hardware engineer and diagnostic assistant. "
+            "Your task is to perform diagnostic troubleshooting on a product using only the retrieved documentation "
+            "and session history. Be methodical, like a technician testing evidence.\n"
+            "You MUST return a single, valid JSON object with the following keys:\n"
+            '- "probable_causes": a list of 2-4 short strings representing the most likely causes of the issue based on documentation\n'
+            '- "investigation_reasoning": a paragraph of 2-3 sentences explaining your diagnostic thought process. Reference specific guides and findings to explain why you are narrowing down or suspecting these causes, without guessing prematurely.\n'
+            '- "follow_up_question": a single targeted clarifying question to narrow down or eliminate causes (e.g. asking about status lights, symptom behavior, or physical state)\n'
+            '- "next_step": a short description of the next physical diagnostic check the user should perform\n'
+            '- "recommended_action": a specific, actionable check or fix from the documentation for the user to try\n'
             "Ensure the output starts with '{' and ends with '}'. Do not wrap the JSON in markdown code blocks. Do not add any text before or after the JSON."
         )
 

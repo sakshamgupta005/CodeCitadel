@@ -19,6 +19,9 @@ export type ProductView = Product & {
   featured?: boolean;
   commonIssues?: string[];
   documentation?: Array<{ icon: string; name: string; meta: string; featured?: boolean }>;
+  brand?: string;
+  price?: number;
+  rating?: number;
 };
 
 export type ImportStatus = {
@@ -45,6 +48,8 @@ export type DiagnosticReference = {
   type: string;
   id?: string | null;
   title?: string | null;
+  section?: string | null;
+  page?: string | null;
   url?: string | null;
   score?: number | null;
   snippet?: string | null;
@@ -53,6 +58,7 @@ export type DiagnosticReference = {
 export type DiagnosticResponse = {
   session_id: string;
   probable_causes: string[];
+  investigation_reasoning: string;
   follow_up_question: string;
   next_step: string;
   recommended_action: string;

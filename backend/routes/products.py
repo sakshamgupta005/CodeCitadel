@@ -184,6 +184,11 @@ async def upload_product_url(product_id: str, payload: UrlKnowledgeRequest) -> I
     )
 
 
+@router.post("/global/diagnose", response_model=DiagnosticResponse)
+async def diagnose_global(payload: DiagnosticRequest) -> DiagnosticResponse:
+    return await diagnostic_service.diagnose_global(payload=payload)
+
+
 @router.post("/{product_id}/diagnose", response_model=DiagnosticResponse)
 async def diagnose_product(product_id: str, payload: DiagnosticRequest) -> DiagnosticResponse:
     product = product_store.get_product(product_id)

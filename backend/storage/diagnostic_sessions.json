@@ -715,5 +715,37 @@
     "recommended_action": "After resetting, attempt the pairing process again via the mobile app, ensuring both units are updated to the latest firmware version.",
     "created_at": "2026-06-14T14:55:48.406126+00:00",
     "updated_at": "2026-06-14T14:55:59.006253+00:00"
+  },
+  "23491a9e-53a8-4b2c-84e1-b1d20b9f8995": {
+    "id": "23491a9e-53a8-4b2c-84e1-b1d20b9f8995",
+    "product_id": "moss-router-x1",
+    "issue_description": "I need a demo-ready version of my application. The real product upload/backend flow is currently not working, so I want you to temporarily replace it with realistic fake data for a polished demo.\n\nPlease analyze my codebase and make the following changes:\n\n1. Fake AI Product Upload Flow\nDo not call the real API/backend.\nWhen the user uploads a product image and clicks the upload button, simulate an AI analysis process.\nShow realistic loading states such as:\n\"Uploading image...\"\n\"Analyzing product with AI...\"\n\"Generating marketplace data...\"\nAdd a 2\u20133 second delay to make the AI processing feel realistic.\n\nAfter the loading finishes, automatically return a realistic product analysis, for example:\n\nProduct Name: Nike Air Max 270\nBrand: Nike\nCategory: Running Shoes\nEstimated Price: $120\nAI Confidence: 98%\nDescription: \"AI successfully identified the product and generated optimized marketplace information.\"\n2. Make the UI Look Real\nDisplay the uploaded image as if it was analyzed.\nAdd smooth animations, progress indicators, success checkmarks, and professional transitions.\nMake it look like a real AI system is processing the product.\n3. Add Demo Marketplace Data\n\nCreate 8\u201310 realistic sample products with:\n\nProduct image\nProduct name\nBrand\nPrice\nRating\nShort description\nCategory\n\nMake the marketplace look populated and production-ready.\n\n4. Keep the Original Code Safe\n\nDo not delete the original API implementation.\nInstead:\n\nAdd a clear DEMO_MODE flag or separate mock data file.\nStructure the code so I can switch back to the real backend later by changing a single variable.\n5. Maintain Existing Design\nKeep my current design language, colors, and components.\nDo not redesign the entire app.\nOnly improve the user experience around the demo flow.\n6. Provide Complete Code Changes\n\nFor every file you modify:\n\nTell me the exact file path.\nExplain why it was changed.\nProvide the complete updated file code, not snippets.\n\nMy goal is to record a hackathon demo, so the application should appear fully functional even though the backend is mocked.",
+    "answers": [],
+    "latest_question": "Are you using a specific frontend framework like React or Vue, and where is your current API service file located?",
+    "probable_causes": [
+      "Backend API endpoint unavailability",
+      "Missing mock data layer for frontend development",
+      "Lack of conditional logic for demo vs. production environments"
+    ],
+    "next_step": "Create a 'config.js' file to define a 'DEMO_MODE' constant and a 'mockData.js' file to store your product array.",
+    "recommended_action": "Implement a conditional check in your upload function that toggles between the real API call and a 'setTimeout' promise that resolves with your mock product object when 'DEMO_MODE' is true.",
+    "created_at": "2026-06-14T15:12:03.809410+00:00",
+    "updated_at": "2026-06-14T15:12:24.924329+00:00"
+  },
+  "8359982d-df88-4473-9bfb-923c90e4ff0b": {
+    "id": "8359982d-df88-4473-9bfb-923c90e4ff0b",
+    "product_id": "moss-router-x1",
+    "issue_description": "\"My mesh node won't connect to the main router.\"",
+    "answers": [],
+    "latest_question": "Is the status light on your mesh node currently pulsing amber rapidly?",
+    "probable_causes": [
+      "Hardware synchronization failure",
+      "Firmware version mismatch between nodes",
+      "Node placed too far from the main router during pairing"
+    ],
+    "next_step": "Bring the mesh node into the same room as the main router and perform a factory reset by holding the reset button for 10 seconds.",
+    "recommended_action": "After the factory reset, attempt the pairing process again while ensuring both units are updated to the latest firmware version.",
+    "created_at": "2026-06-14T15:16:17.947646+00:00",
+    "updated_at": "2026-06-14T15:16:23.484644+00:00"
   }
 }
