@@ -1,0 +1,17 @@
+⨯ TypeError: fetch failed
+    at async fetchJson (src\lib\api.ts:10:20)
+    at async DashboardPage (src\app\dashboard\page.tsx:6:36)
+   8 |
+   9 | async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
+> 10 |   const response = await fetch(`${API_BASE_URL}${path}`, {
+     |                    ^
+  11 |     ...init,
+  12 |     cache: "no-store",
+  13 |     headers: { {
+  digest: '2263081751',
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED',
+    [errors]: [ [Error], [Error] ]
+  }
+}

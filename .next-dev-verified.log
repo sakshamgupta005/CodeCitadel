@@ -1,0 +1,27 @@
+
+> codecitadel-fixpilot@0.1.0 dev
+> next dev --hostname 127.0.0.1 --port 3000
+
+▲ Next.js 16.2.9 (Turbopack)
+- Local:         http://127.0.0.1:3000
+- Network:       http://127.0.0.1:3000
+✓ Ready in 3.2s
+Creating turbopack project {
+  dir: 'C:\\Users\\rspma\\Downloads\\MossHack\\CodeCitadel',
+  testMode: true
+}
+
+○ Compiling /marketplace ...
+ GET /marketplace 200 in 3.9s (next.js: 3.3s, application-code: 616ms)
+ GET /diagnostic 200 in 4.0s (next.js: 3.6s, application-code: 373ms)
+ GET /products/hp-laserjet-pro-m404n 200 in 4.5s (next.js: 4.4s, application-code: 123ms)
+ GET /marketplace 200 in 97ms (next.js: 5ms, application-code: 92ms)
+ GET /products/hp-laserjet-pro-m404n 200 in 112ms (next.js: 16ms, application-code: 96ms)
+ GET /diagnostic 200 in 70ms (next.js: 5ms, application-code: 65ms)
+ GET /dashboard 500 in 492ms (next.js: 389ms, application-code: 103ms)
+✓ Compiled in 92ms
+ GET /marketplace 200 in 273ms (next.js: 98ms, application-code: 175ms)
+ GET /products/hp-laserjet-pro-m404n 200 in 294ms (next.js: 106ms, application-code: 188ms)
+ GET /diagnostic 200 in 272ms (next.js: 95ms, application-code: 177ms)
+ GET /dashboard 200 in 286ms (next.js: 90ms, application-code: 196ms)
+ GET /marketplace 200 in 221ms (next.js: 10ms, application-code: 211ms)
