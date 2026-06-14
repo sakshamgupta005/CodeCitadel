@@ -33,5 +33,12 @@
     "category": "Appliances",
     "description": "Multi-stage RO filtration system with live TDS monitoring and filter replacement alerts.",
     "image_url": "https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b"
+  },
+  {
+    "id": "aeroforce-router-pro",
+    "name": "AeroForce Router Pro",
+    "category": "Networking",
+    "description": "High power tri-band router supporting Wi-Fi 7.",
+    "image_url": "https://images.unsplash.com/photo-1606904825846-647eb07f5be2"
   }
 ]

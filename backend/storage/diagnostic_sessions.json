@@ -684,5 +684,36 @@
     "recommended_action": "Toggle the MLO compatibility mode switch to resolve the association issue.",
     "created_at": "2026-06-14T14:39:52.386857+00:00",
     "updated_at": "2026-06-14T14:39:59.054866+00:00"
+  },
+  "3c1b5886-d2d8-4abf-a625-57df12b18727": {
+    "id": "3c1b5886-d2d8-4abf-a625-57df12b18727",
+    "product_id": "aeroforce-router-pro",
+    "issue_description": "MLO compatibility mode switch",
+    "answers": [],
+    "latest_question": "Is the status indicator on the top panel currently glowing violet?",
+    "probable_causes": [
+      "MLO association failure",
+      "Incompatibility with legacy Wi-Fi 7 client devices"
+    ],
+    "next_step": "Navigate to the wireless admin panel under Advanced > Wireless 7 Settings.",
+    "recommended_action": "Toggle the MLO compatibility mode switch to resolve the association failure.",
+    "created_at": "2026-06-14T14:50:56.593293+00:00",
+    "updated_at": "2026-06-14T14:51:10.564330+00:00"
+  },
+  "910e9875-195b-4208-b11e-7bbd688b03db": {
+    "id": "910e9875-195b-4208-b11e-7bbd688b03db",
+    "product_id": "moss-router-x1",
+    "issue_description": "My mesh node won't connect to the main router",
+    "answers": [],
+    "latest_question": "What color is the status light on the secondary node, and is it pulsing or solid?",
+    "probable_causes": [
+      "Hardware synchronization failure",
+      "Firmware version mismatch between nodes",
+      "Node placed too far from the main router during pairing"
+    ],
+    "next_step": "Bring the secondary node within 5-10 feet of the main router and perform a factory reset by holding the reset button for 10 seconds.",
+    "recommended_action": "After resetting, attempt the pairing process again via the mobile app, ensuring both units are updated to the latest firmware version.",
+    "created_at": "2026-06-14T14:55:48.406126+00:00",
+    "updated_at": "2026-06-14T14:55:59.006253+00:00"
   }
 }
