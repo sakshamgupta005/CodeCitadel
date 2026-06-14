@@ -747,5 +747,22 @@
     "recommended_action": "After the factory reset, attempt the pairing process again while ensuring both units are updated to the latest firmware version.",
     "created_at": "2026-06-14T15:16:17.947646+00:00",
     "updated_at": "2026-06-14T15:16:23.484644+00:00"
+  },
+  "662a9fbe-e4a3-49a1-ada8-e75be315a3e2": {
+    "id": "662a9fbe-e4a3-49a1-ada8-e75be315a3e2",
+    "product_id": "moss-router-x1",
+    "issue_description": "what is moss teach it to me",
+    "answers": [],
+    "latest_question": "What is the current color and behavior (solid, slowly pulsing, or rapidly blinking) of the LED status light on your Moss Router X1?",
+    "probable_causes": [
+      "Mesh synchronization failure",
+      "Firmware version mismatch",
+      "Wi-Fi channel interference"
+    ],
+    "next_step": "Observe the LED status light on the router and compare it against the indicators listed in the LED Status Reference guide.",
+    "recommended_action": "If the LED is rapidly pulsing amber, perform a factory reset by holding the reset button for 10 seconds, then attempt to re-pair the units while they are within 5-10 feet of each other.",
+    "created_at": "2026-06-14T19:07:46.296144+00:00",
+    "updated_at": "2026-06-14T19:08:07.594325+00:00",
+    "investigation_reasoning": "The user's request is ambiguous, but as a diagnostic assistant, I must treat the 'Moss Router X1' as the subject of inquiry. Based on the provided documentation, common issues involve mesh pairing failures indicated by amber LED patterns or connectivity drops due to channel congestion. I am narrowing the focus to these areas because they represent the primary troubleshooting paths defined in the Mesh Pairing and Troubleshooting guides."
   }
 }

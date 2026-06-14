@@ -63,4 +63,6 @@ export type DiagnosticResponse = {
   next_step: string;
   recommended_action: string;
   documentation_references: DiagnosticReference[];
+  detected_product_id?: string | null;
+  detected_product_name?: string | null;
 };

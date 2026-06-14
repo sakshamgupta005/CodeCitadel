@@ -167,6 +167,8 @@ class DiagnosticResponse(BaseModel):
     next_step: str
     recommended_action: str
     documentation_references: list[DiagnosticReference]
+    detected_product_id: str | None = None
+    detected_product_name: str | None = None
 
 
 def clean_metadata(metadata: dict[str, Any]) -> dict[str, str]:

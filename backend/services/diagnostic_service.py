@@ -127,6 +127,8 @@ class DiagnosticService:
             next_step=diagnosis["next_step"],
             recommended_action=diagnosis["recommended_action"],
             documentation_references=self._references(documents),
+            detected_product_id=diagnosis.get("detected_product_id"),
+            detected_product_name=diagnosis.get("detected_product_name"),
         )
 
     def _get_or_create_session(self, product: Product, payload: DiagnosticRequest) -> dict[str, object]:

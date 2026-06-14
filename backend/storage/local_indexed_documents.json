@@ -46,5 +46,366 @@
       "chunk_count": "1",
       "created_at": "2026-06-14T14:50:50.429976+00:00"
     }
+  },
+  "product:moss-router-x1:text:4bde97a9ea97af55d9f59951:1": {
+    "id": "product:moss-router-x1:text:4bde97a9ea97af55d9f59951:1",
+    "text": "Product ID: moss-router-x1\nProduct: Moss Router X1\nCategory: Networking\nDocument: Mesh Pairing Guide | Section 2.2: Wireless Node Pairing | Page 8\n\nTo pair a secondary node wirelessly, place it in the same room as the primary Moss Router X1, within 5-10 feet during setup. Power the node on and wait for the LED to pulse amber. Press the sync button on the back of the main router for 3 seconds until its LED flashes blue, then press sync on the secondary node. If pairing is successful, the secondary node LED will flash green.",
+    "metadata": {
+      "source": "product_knowledge",
+      "type": "text",
+      "product_id": "moss-router-x1",
+      "product_name": "Moss Router X1",
+      "product_category": "Networking",
+      "title": "Mesh Pairing Guide",
+      "filename": "mesh_pairing_guide.txt",
+      "source_id": "4bde97a9ea97af55d9f59951",
+      "chunk_index": "1",
+      "chunk_count": "1",
+      "created_at": "2026-06-14T18:58:09.784956+00:00",
+      "section": "Section 2.2: Wireless Node Pairing",
+      "page": "8"
+    }
+  },
+  "product:moss-router-x1:text:99ee63843320a24f692bd6eb:1": {
+    "id": "product:moss-router-x1:text:99ee63843320a24f692bd6eb:1",
+    "text": "Product ID: moss-router-x1\nProduct: Moss Router X1\nCategory: Networking\nDocument: Mesh Pairing Guide | Section 2.5: Troubleshooting Mesh Sync Failures | Page 12\n\nIf the secondary node fails to connect to the main router, the status light will pulse amber rapidly. This indicates a hardware synchronization failure. To resolve this, bring the node back to the same room as the main router. Perform a factory reset on the node by holding the reset button for 10 seconds. Attempt the pairing process again. Ensure that both units are running the same firmware version, as mismatching versions can cause sync failures.",
+    "metadata": {
+      "source": "product_knowledge",
+      "type": "text",
+      "product_id": "moss-router-x1",
+      "product_name": "Moss Router X1",
+      "product_category": "Networking",
+      "title": "Mesh Pairing Guide",
+      "filename": "mesh_pairing_guide.txt",
+      "source_id": "99ee63843320a24f692bd6eb",
+      "chunk_index": "1",
+      "chunk_count": "1",
+      "created_at": "2026-06-14T18:58:09.784956+00:00",
+      "section": "Section 2.5: Troubleshooting Mesh Sync Failures",
+      "page": "12"
+    }
+  },
+  "product:moss-router-x1:text:07265acbea4ecee1283ec647:1": {
+    "id": "product:moss-router-x1:text:07265acbea4ecee1283ec647:1",
+    "text": "Product ID: moss-router-x1\nProduct: Moss Router X1\nCategory: Networking\nDocument: Troubleshooting Guide | Section 3.1: Diagnosing Frequent Wireless Disconnections | Page 15\n\nIf your devices disconnect frequently from the Wi-Fi network, the issue is often Wi-Fi channel interference. To resolve this, log in to the router admin portal (http://192.168.1.1) and navigate to Wireless Settings. Change the 2.4GHz channel from 'Auto' to channel 1, 6, or 11. For the 5GHz band, select channel 36, 44, or 149. Additionally, reduce the channel width from 80MHz to 40MHz or 20MHz to significantly reduce channel congestion and increase stability.",
+    "metadata": {
+      "source": "product_knowledge",
+      "type": "text",
+      "product_id": "moss-router-x1",
+      "product_name": "Moss Router X1",
+      "product_category": "Networking",
+      "title": "Troubleshooting Guide",
+      "filename": "troubleshooting_guide.txt",
+      "source_id": "07265acbea4ecee1283ec647",
+      "chunk_index": "1",
+      "chunk_count": "1",
+      "created_at": "2026-06-14T18:58:09.784956+00:00",
+      "section": "Section 3.1: Diagnosing Frequent Wireless Disconnections",
+      "page": "15"
+    }
+  },
+  "product:moss-router-x1:text:7d644c74510ebf49cb8cee68:1": {
+    "id": "product:moss-router-x1:text:7d644c74510ebf49cb8cee68:1",
+    "text": "Product ID: moss-router-x1\nProduct: Moss Router X1\nCategory: Networking\nDocument: LED Status Reference | Section 4.3: Solid Amber and Pulsing Amber Indicators | Page 22\n\nA solid amber LED indicator means the router is booting up or initializing its operating system. Do not unplug the power adapter while the light is solid amber. A slowly pulsing amber LED indicator means the node is ready for pairing. A rapidly pulsing or blinking amber LED indicates a synchronization failure or a critical firmware warning. If it blinks amber, the node has lost connection to the main unit; move it closer to resolve.",
+    "metadata": {
+      "source": "product_knowledge",
+      "type": "text",
+      "product_id": "moss-router-x1",
+      "product_name": "Moss Router X1",
+      "product_category": "Networking",
+      "title": "LED Status Reference",
+      "filename": "led_status_reference.txt",
+      "source_id": "7d644c74510ebf49cb8cee68",
+      "chunk_index": "1",
+      "chunk_count": "1",
+      "created_at": "2026-06-14T18:58:09.784956+00:00",
+      "section": "Section 4.3: Solid Amber and Pulsing Amber Indicators",
+      "page": "22"
+    }
+  },
+  "product:hp-laserjet-pro-m404n:text:91e2318c3a528d168a558242:1": {
+    "id": "product:hp-laserjet-pro-m404n:text:91e2318c3a528d168a558242:1",
+    "text": "Product ID: hp-laserjet-pro-m404n\nProduct: HP LaserJet Pro M404n\nCategory: Electronics\nDocument: User Guide | Section 1.5: Print Quality Issues | Page 12\n\nIf the print output appears faded, uneven, or has white vertical streaks, the toner cartridge may be running low. Remove the toner cartridge from the front door assembly, hold it by the ends, and gently shake it from side to side 5-6 times to redistribute the remaining toner. Reinsert the cartridge and perform a test print. If fading persists, replace the cartridge with HP 58A or 58X.",
+    "metadata": {
+      "source": "product_knowledge",
+      "type": "text",
+      "product_id": "hp-laserjet-pro-m404n",
+      "product_name": "HP LaserJet Pro M404n",
+      "product_category": "Electronics",
+      "title": "User Guide",
+      "filename": "user_guide.txt",
+      "source_id": "91e2318c3a528d168a558242",
+      "chunk_index": "1",
+      "chunk_count": "1",
+      "created_at": "2026-06-14T18:58:09.786031+00:00",
+      "section": "Section 1.5: Print Quality Issues",
+      "page": "12"
+    }
+  },
+  "product:hp-laserjet-pro-m404n:text:8464ad2fcc98ecc2c1e5adc6:1": {
+    "id": "product:hp-laserjet-pro-m404n:text:8464ad2fcc98ecc2c1e5adc6:1",
+    "text": "Product ID: hp-laserjet-pro-m404n\nProduct: HP LaserJet Pro M404n\nCategory: Electronics\nDocument: User Guide | Section 3.2: Reordering Supplies | Page 35\n\nIf the printer's LCD panel displays a 'Toner Low' warning or the orange status light flashes, it is time to order a replacement. The HP LaserJet Pro M404n uses HP 58A (standard yield, ~3,000 pages) or HP 58X (high yield, ~10,000 pages) black toner cartridges. Always use original HP toner to prevent print defects and drum damage.",
+    "metadata": {
+      "source": "product_knowledge",
+      "type": "text",
+      "product_id": "hp-laserjet-pro-m404n",
+      "product_name": "HP LaserJet Pro M404n",
+      "product_category": "Electronics",
+      "title": "User Guide",
+      "filename": "user_guide.txt",
+      "source_id": "8464ad2fcc98ecc2c1e5adc6",
+      "chunk_index": "1",
+      "chunk_count": "1",
+      "created_at": "2026-06-14T18:58:09.786031+00:00",
+      "section": "Section 3.2: Reordering Supplies",
+      "page": "35"
+    }
+  },
+  "product:hp-laserjet-pro-m404n:text:d2cde99ccd20412e2f9bc82f:1": {
+    "id": "product:hp-laserjet-pro-m404n:text:d2cde99ccd20412e2f9bc82f:1",
+    "text": "Product ID: hp-laserjet-pro-m404n\nProduct: HP LaserJet Pro M404n\nCategory: Electronics\nDocument: Troubleshooting Manual | Section 2.3: Clearing Paper Jams | Page 27\n\nWhen a paper jam occurs, the printer halts printing and displays an error code. Open the rear access door and check for jammed sheets in the fuser area. Gently pull any jammed paper straight out of Tray 2 or the rear area. Do not pull paper from the output bin if possible, as this can damage the internal rollers. Reset Tray 2 to resume.",
+    "metadata": {
+      "source": "product_knowledge",
+      "type": "text",
+      "product_id": "hp-laserjet-pro-m404n",
+      "product_name": "HP LaserJet Pro M404n",
+      "product_category": "Electronics",
+      "title": "Troubleshooting Manual",
+      "filename": "troubleshooting_manual.txt",
+      "source_id": "d2cde99ccd20412e2f9bc82f",
+      "chunk_index": "1",
+      "chunk_count": "1",
+      "created_at": "2026-06-14T18:58:09.786031+00:00",
+      "section": "Section 2.3: Clearing Paper Jams",
+      "page": "27"
+    }
+  },
+  "product:hp-laserjet-pro-m404n:text:e604c8f868b93cc509a88c9e:1": {
+    "id": "product:hp-laserjet-pro-m404n:text:e604c8f868b93cc509a88c9e:1",
+    "text": "Product ID: hp-laserjet-pro-m404n\nProduct: HP LaserJet Pro M404n\nCategory: Electronics\nDocument: Troubleshooting Manual | Section 4.1: Network Setup Troubleshooting | Page 40\n\nIf the printer shows a connection timeout or offline status on your PC, inspect the Ethernet cable connection. Verify the cable is plugged into both the printer LAN port and the network router. Confirm the green link light on the printer's RJ45 port is solid or blinking. Print a configuration report via the printer control panel to confirm the assigned IP address.",
+    "metadata": {
+      "source": "product_knowledge",
+      "type": "text",
+      "product_id": "hp-laserjet-pro-m404n",
+      "product_name": "HP LaserJet Pro M404n",
+      "product_category": "Electronics",
+      "title": "Troubleshooting Manual",
+      "filename": "troubleshooting_manual.txt",
+      "source_id": "e604c8f868b93cc509a88c9e",
+      "chunk_index": "1",
+      "chunk_count": "1",
+      "created_at": "2026-06-14T18:58:09.786031+00:00",
+      "section": "Section 4.1: Network Setup Troubleshooting",
+      "page": "40"
+    }
+  },
+  "product:smart-air-conditioner:text:c4d58f2924373811ac84c0a1:1": {
+    "id": "product:smart-air-conditioner:text:c4d58f2924373811ac84c0a1:1",
+    "text": "Product ID: smart-air-conditioner\nProduct: Smart Air Conditioner\nCategory: HVAC\nDocument: Owner Operation Manual | Section 2.1: Cold Air Issues | Page 14\n\nIf the smart AC is not cooling the room despite running, the air filters may be clogged. Clogged filters restrict airflow and reduce cooling efficiency. Open the front cover, slide out the plastic filters, wash them with mild soap and warm water, and dry completely before reinserting. Clean the filters every 2 weeks for optimal climate control performance.",
+    "metadata": {
+      "source": "product_knowledge",
+      "type": "text",
+      "product_id": "smart-air-conditioner",
+      "product_name": "Smart Air Conditioner",
+      "product_category": "HVAC",
+      "title": "Owner Operation Manual",
+      "filename": "owner_operation_manual.txt",
+      "source_id": "c4d58f2924373811ac84c0a1",
+      "chunk_index": "1",
+      "chunk_count": "1",
+      "created_at": "2026-06-14T18:58:09.786580+00:00",
+      "section": "Section 2.1: Cold Air Issues",
+      "page": "14"
+    }
+  },
+  "product:smart-air-conditioner:text:4f13f7b39373893421ed9d3e:1": {
+    "id": "product:smart-air-conditioner:text:4f13f7b39373893421ed9d3e:1",
+    "text": "Product ID: smart-air-conditioner\nProduct: Smart Air Conditioner\nCategory: HVAC\nDocument: Owner Operation Manual | Section 1.3: Remote Control Pairing | Page 5\n\nIf the remote control is unresponsive, confirm the battery orientation and verify the screen displays the active temperature. Point the remote directly at the receiver window on the AC indoor unit. The maximum range is 20 feet. If the receiver beep does not sound, replace the AAA batteries and check if the timer indicator light on the AC is blinking.",
+    "metadata": {
+      "source": "product_knowledge",
+      "type": "text",
+      "product_id": "smart-air-conditioner",
+      "product_name": "Smart Air Conditioner",
+      "product_category": "HVAC",
+      "title": "Owner Operation Manual",
+      "filename": "owner_operation_manual.txt",
+      "source_id": "4f13f7b39373893421ed9d3e",
+      "chunk_index": "1",
+      "chunk_count": "1",
+      "created_at": "2026-06-14T18:58:09.786580+00:00",
+      "section": "Section 1.3: Remote Control Pairing",
+      "page": "5"
+    }
+  },
+  "product:smart-air-conditioner:text:9efdf6dde27f054d78abbd07:1": {
+    "id": "product:smart-air-conditioner:text:9efdf6dde27f054d78abbd07:1",
+    "text": "Product ID: smart-air-conditioner\nProduct: Smart Air Conditioner\nCategory: HVAC\nDocument: Service & Installation Guide | Section 3.4: Drain Hose Maintenance | Page 25\n\nWater leakage from the base of the indoor AC unit is caused by blockages in the condensate drain pipe. Over time, dust and algae build up in the drain hose, preventing water flow. Ensure the drain hose slopes downwards continuously with no bends. Flush the drain hose with warm water or clear obstructions using a soft wire to resolve indoor condensation drips.",
+    "metadata": {
+      "source": "product_knowledge",
+      "type": "text",
+      "product_id": "smart-air-conditioner",
+      "product_name": "Smart Air Conditioner",
+      "product_category": "HVAC",
+      "title": "Service & Installation Guide",
+      "filename": "service_&_installation_guide.txt",
+      "source_id": "9efdf6dde27f054d78abbd07",
+      "chunk_index": "1",
+      "chunk_count": "1",
+      "created_at": "2026-06-14T18:58:09.786580+00:00",
+      "section": "Section 3.4: Drain Hose Maintenance",
+      "page": "25"
+    }
+  },
+  "product:smart-air-conditioner:text:4592915b5db2d5f4f3d8c6b1:1": {
+    "id": "product:smart-air-conditioner:text:4592915b5db2d5f4f3d8c6b1:1",
+    "text": "Product ID: smart-air-conditioner\nProduct: Smart Air Conditioner\nCategory: HVAC\nDocument: Service & Installation Guide | Section 4.2: Fan and Blower Diagnostics | Page 31\n\nStrange clicking or rattling noises from the AC indoor unit usually indicate loose fan motor mountings or a dirty blower wheel. Ensure the unit is shut off, open the intake grill, and visually inspect for debris inside the drum. If the fan blades are clean and mounting screws are tight, the fan bearing may need replacement.",
+    "metadata": {
+      "source": "product_knowledge",
+      "type": "text",
+      "product_id": "smart-air-conditioner",
+      "product_name": "Smart Air Conditioner",
+      "product_category": "HVAC",
+      "title": "Service & Installation Guide",
+      "filename": "service_&_installation_guide.txt",
+      "source_id": "4592915b5db2d5f4f3d8c6b1",
+      "chunk_index": "1",
+      "chunk_count": "1",
+      "created_at": "2026-06-14T18:58:09.786580+00:00",
+      "section": "Section 4.2: Fan and Blower Diagnostics",
+      "page": "31"
+    }
+  },
+  "product:smart-washing-machine:text:f2bc70263540bc0b8a872f16:1": {
+    "id": "product:smart-washing-machine:text:f2bc70263540bc0b8a872f16:1",
+    "text": "Product ID: smart-washing-machine\nProduct: Smart Washing Machine\nCategory: Appliances\nDocument: User Manual | Section 3.1: Drum Spin Issues | Page 18\n\nIf the washing machine stops and refuses to spin, the load may be unbalanced. A single heavy item, like a towel or rug, can offset the balance of the drum. Pause the cycle, open the door, redistribute the clothes evenly inside the drum, and press Start. An unbalanced load will trigger a 'UE' or 'Ub' error code on the control display panel.",
+    "metadata": {
+      "source": "product_knowledge",
+      "type": "text",
+      "product_id": "smart-washing-machine",
+      "product_name": "Smart Washing Machine",
+      "product_category": "Appliances",
+      "title": "User Manual",
+      "filename": "user_manual.txt",
+      "source_id": "f2bc70263540bc0b8a872f16",
+      "chunk_index": "1",
+      "chunk_count": "1",
+      "created_at": "2026-06-14T18:58:09.787207+00:00",
+      "section": "Section 3.1: Drum Spin Issues",
+      "page": "18"
+    }
+  },
+  "product:smart-washing-machine:text:6291fdf175c5fab121476a01:1": {
+    "id": "product:smart-washing-machine:text:6291fdf175c5fab121476a01:1",
+    "text": "Product ID: smart-washing-machine\nProduct: Smart Washing Machine\nCategory: Appliances\nDocument: User Manual | Section 1.4: Leveling Feet Calibration | Page 8\n\nExcessive shaking, banging, and vibration during the spin cycle is caused by unlevel placement. Place a bubble level on top of the washing machine. Loosen the lock nuts on the leveling feet at the bottom corners, adjust the height until the cabinet is perfectly level, and retighten the lock nuts securely to prevent the washer from moving during high-speed spins.",
+    "metadata": {
+      "source": "product_knowledge",
+      "type": "text",
+      "product_id": "smart-washing-machine",
+      "product_name": "Smart Washing Machine",
+      "product_category": "Appliances",
+      "title": "User Manual",
+      "filename": "user_manual.txt",
+      "source_id": "6291fdf175c5fab121476a01",
+      "chunk_index": "1",
+      "chunk_count": "1",
+      "created_at": "2026-06-14T18:58:09.787207+00:00",
+      "section": "Section 1.4: Leveling Feet Calibration",
+      "page": "8"
+    }
+  },
+  "product:smart-washing-machine:text:d6f2cff88348da0403d72d27:1": {
+    "id": "product:smart-washing-machine:text:d6f2cff88348da0403d72d27:1",
+    "text": "Product ID: smart-washing-machine\nProduct: Smart Washing Machine\nCategory: Appliances\nDocument: Component Diagnostic Manual | Section 4.2: Pump Filter Maintenance | Page 22\n\nIf the washer is not draining water, the drain pump filter is likely clogged with lint, coins, or small items. Locate the service filter door at the bottom right corner of the front panel. Place a shallow pan on the floor, release the black emergency drain tube to empty water, then twist the pump filter counter-clockwise and pull it out. Clear any trapped debris and screw it back on tight.",
+    "metadata": {
+      "source": "product_knowledge",
+      "type": "text",
+      "product_id": "smart-washing-machine",
+      "product_name": "Smart Washing Machine",
+      "product_category": "Appliances",
+      "title": "Component Diagnostic Manual",
+      "filename": "component_diagnostic_manual.txt",
+      "source_id": "d6f2cff88348da0403d72d27",
+      "chunk_index": "1",
+      "chunk_count": "1",
+      "created_at": "2026-06-14T18:58:09.787207+00:00",
+      "section": "Section 4.2: Pump Filter Maintenance",
+      "page": "22"
+    }
+  },
+  "product:smart-washing-machine:text:8b28f75a61d2799628152cc3:1": {
+    "id": "product:smart-washing-machine:text:8b28f75a61d2799628152cc3:1",
+    "text": "Product ID: smart-washing-machine\nProduct: Smart Washing Machine\nCategory: Appliances\nDocument: Component Diagnostic Manual | Section 2.5: Door Lock Emergency Release | Page 11\n\nIf the washer door remains locked after the cycle completes and water has drained, the safety solenoid is stuck. Unplug the washing machine from the wall outlet and wait 5 minutes. If the door is still locked, open the drain filter door, locate the plastic pull tab, and pull it downwards gently to manually bypass the door lock mechanism.",
+    "metadata": {
+      "source": "product_knowledge",
+      "type": "text",
+      "product_id": "smart-washing-machine",
+      "product_name": "Smart Washing Machine",
+      "product_category": "Appliances",
+      "title": "Component Diagnostic Manual",
+      "filename": "component_diagnostic_manual.txt",
+      "source_id": "8b28f75a61d2799628152cc3",
+      "chunk_index": "1",
+      "chunk_count": "1",
+      "created_at": "2026-06-14T18:58:09.787714+00:00",
+      "section": "Section 2.5: Door Lock Emergency Release",
+      "page": "11"
+    }
+  },
+  "product:water-purifier:text:d521cb6fe1760578567b4c62:1": {
+    "id": "product:water-purifier:text:d521cb6fe1760578567b4c62:1",
+    "text": "Product ID: water-purifier\nProduct: Water Purifier\nCategory: Appliances\nDocument: Instruction Manual | Section 2.2: Flow Rate Troubles | Page 10\n\nA low water flow rate from the purifier faucet is caused by low water feed pressure or clogged pre-filters. Ensure the feed valve is fully open and the incoming pressure is at least 30 psi. If input pressure is sufficient, replace the sediment and carbon block filters. Accumulated silt and chlorine by-products reduce water delivery speed over time.",
+    "metadata": {
+      "source": "product_knowledge",
+      "type": "text",
+      "product_id": "water-purifier",
+      "product_name": "Water Purifier",
+      "product_category": "Appliances",
+      "title": "Instruction Manual",
+      "filename": "instruction_manual.txt",
+      "source_id": "d521cb6fe1760578567b4c62",
+      "chunk_index": "1",
+      "chunk_count": "1",
+      "created_at": "2026-06-14T18:58:09.787714+00:00",
+      "section": "Section 2.2: Flow Rate Troubles",
+      "page": "10"
+    }
+  },
+  "product:water-purifier:text:506f9aa9394aab90bb537150:1": {
+    "id": "product:water-purifier:text:506f9aa9394aab90bb537150:1",
+    "text": "Product ID: water-purifier\nProduct: Water Purifier\nCategory: Appliances\nDocument: Instruction Manual | Section 3.1: Filter Replacement Schedule | Page 15\n\nTo maintain water purity, replace the pre-filter, sediment filter, and activated carbon block filter every 6 months. The main Reverse Osmosis (RO) membrane should be replaced every 12 to 24 months depending on input TDS levels. Always flush new filters for 10 minutes before directing output water to the holding tank.",
+    "metadata": {
+      "source": "product_knowledge",
+      "type": "text",
+      "product_id": "water-purifier",
+      "product_name": "Water Purifier",
+      "product_category": "Appliances",
+      "title": "Instruction Manual",
+      "filename": "instruction_manual.txt",
+      "source_id": "506f9aa9394aab90bb537150",
+      "chunk_index": "1",
+      "chunk_count": "1",
+      "created_at": "2026-06-14T18:58:09.787714+00:00",
+      "section": "Section 3.1: Filter Replacement Schedule",
+      "page": "15"
+    }
+  },
+  "product:water-purifier:text:114cb02f8ae986d338b9b36c:1": {
+    "id": "product:water-purifier:text:114cb02f8ae986d338b9b36c:1",
+    "text": "Product ID: water-purifier\nProduct: Water Purifier\nCategory: Appliances\nDocument: RO Membrane Calibration Guide | Section 5.3: TDS Sensor Probe and RO Membrane Quality | Page 32\n\nA blinking TDS (Total Dissolved Solids) alarm indicates that the purification rate has dropped. If the purified water TDS exceeds 10% of raw input water TDS, the RO membrane reject rate is below 90%. Inspect the RO membrane for tears, flush the membrane chamber, and check if the TDS sensor probe is clean. If the membrane is older than 18 months, replace it and reset the filter indicator button.",
+    "metadata": {
+      "source": "product_knowledge",
+      "type": "text",
+      "product_id": "water-purifier",
+      "product_name": "Water Purifier",
+      "product_category": "Appliances",
+      "title": "RO Membrane Calibration Guide",
+      "filename": "ro_membrane_calibration_guide.txt",
+      "source_id": "114cb02f8ae986d338b9b36c",
+      "chunk_index": "1",
+      "chunk_count": "1",
+      "created_at": "2026-06-14T18:58:09.788235+00:00",
+      "section": "Section 5.3: TDS Sensor Probe and RO Membrane Quality",
+      "page": "32"
+    }
   }
 }

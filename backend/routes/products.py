@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import logging
+import json
+from pathlib import Path
+from datetime import datetime, UTC
 
 from fastapi import APIRouter, File, Form, Query, UploadFile, status
 
@@ -13,6 +16,7 @@ from models.schemas import (
     ProductCreate,
     UrlKnowledgeRequest,
 )
+from services.config import BASE_DIR
 from services.diagnostic_service import diagnostic_service
 from services.exceptions import InputValidationError
 from services.import_tracker import import_tracker
@@ -193,6 +197,200 @@ async def diagnose_global(payload: DiagnosticRequest) -> DiagnosticResponse:
 async def diagnose_product(product_id: str, payload: DiagnosticRequest) -> DiagnosticResponse:
     product = product_store.get_product(product_id)
     return await diagnostic_service.diagnose(product=product, payload=payload)
+
+
+@router.get("/global/knowledge")
+async def list_global_knowledge():
+    local_path = Path(BASE_DIR) / "storage" / "local_indexed_documents.json"
+    if not local_path.exists():
+        return []
+    
+    try:
+        with open(local_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        return []
+    
+    grouped = {}
+    for doc_id, doc_info in data.items():
+        meta = doc_info.get("metadata", {})
+        source_id = meta.get("source_id")
+        if not source_id:
+            continue
+            
+        if source_id not in grouped:
+            grouped[source_id] = {
+                "source_id": source_id,
+                "title": meta.get("title") or "Document",
+                "type": meta.get("type") or "text",
+                "filename": meta.get("filename"),
+                "url": meta.get("url"),
+                "product_id": meta.get("product_id"),
+                "product_name": meta.get("product_name"),
+                "created_at": meta.get("created_at") or datetime.now(UTC).isoformat(),
+                "chunk_count": 0,
+                "chunks": [],
+            }
+        
+        grouped[source_id]["chunk_count"] += 1
+        grouped[source_id]["chunks"].append({
+            "id": doc_id,
+            "text": doc_info.get("text", ""),
+            "chunk_index": int(meta.get("chunk_index") or 1)
+        })
+
+    result = []
+    for g in grouped.values():
+        g["chunks"].sort(key=lambda x: x["chunk_index"])
+        first_chunk_text = g["chunks"][0]["text"] if g["chunks"] else ""
+        if "\n\n" in first_chunk_text:
+            parts = first_chunk_text.split("\n\n", 2)
+            if len(parts) > 1 and "Product:" in parts[0]:
+                first_chunk_text = parts[1]
+        
+        g["text_snippet"] = first_chunk_text[:300]
+        result.append(g)
+        
+    result.sort(key=lambda x: x["created_at"], reverse=True)
+    return result
+
+
+@router.get("/{product_id}/knowledge")
+async def list_product_knowledge(product_id: str):
+    local_path = Path(BASE_DIR) / "storage" / "local_indexed_documents.json"
+    if not local_path.exists():
+        return []
+    
+    try:
+        with open(local_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        return []
+    
+    grouped = {}
+    for doc_id, doc_info in data.items():
+        meta = doc_info.get("metadata", {})
+        if meta.get("product_id") != product_id:
+            continue
+        
+        source_id = meta.get("source_id")
+        if not source_id:
+            continue
+            
+        if source_id not in grouped:
+            grouped[source_id] = {
+                "source_id": source_id,
+                "title": meta.get("title") or "Document",
+                "type": meta.get("type") or "text",
+                "filename": meta.get("filename"),
+                "url": meta.get("url"),
+                "product_id": meta.get("product_id"),
+                "product_name": meta.get("product_name"),
+                "created_at": meta.get("created_at") or datetime.now(UTC).isoformat(),
+                "chunk_count": 0,
+                "chunks": [],
+            }
+        
+        grouped[source_id]["chunk_count"] += 1
+        grouped[source_id]["chunks"].append({
+            "id": doc_id,
+            "text": doc_info.get("text", ""),
+            "chunk_index": int(meta.get("chunk_index") or 1)
+        })
+
+    result = []
+    for g in grouped.values():
+        g["chunks"].sort(key=lambda x: x["chunk_index"])
+        first_chunk_text = g["chunks"][0]["text"] if g["chunks"] else ""
+        if "\n\n" in first_chunk_text:
+            parts = first_chunk_text.split("\n\n", 2)
+            if len(parts) > 1 and "Product:" in parts[0]:
+                first_chunk_text = parts[1]
+        
+        g["text_snippet"] = first_chunk_text[:300]
+        result.append(g)
+        
+    result.sort(key=lambda x: x["created_at"], reverse=True)
+    return result
+
+
+@router.delete("/{product_id}/knowledge/{source_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_product_knowledge(product_id: str, source_id: str):
+    local_path = Path(BASE_DIR) / "storage" / "local_indexed_documents.json"
+    if not local_path.exists():
+        return
+    
+    try:
+        with open(local_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        return
+        
+    keys_to_delete = []
+    for doc_id, doc_info in data.items():
+        meta = doc_info.get("metadata", {})
+        if meta.get("product_id") == product_id and meta.get("source_id") == source_id:
+            keys_to_delete.append(doc_id)
+            
+    if not keys_to_delete:
+        return
+        
+    for k in keys_to_delete:
+        if k in data:
+            del data[k]
+            
+    try:
+        tmp_path = local_path.with_suffix(".tmp")
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        tmp_path.replace(local_path)
+    except Exception as exc:
+        logger.error("Failed to write updated local store: %s", exc)
+        
+    try:
+        await moss_service.client.delete_docs(moss_service.index_name, keys_to_delete)
+        logger.info("Deleted %d documents from Moss for source_id=%s", len(keys_to_delete), source_id)
+    except Exception as exc:
+        logger.warning("Moss client document deletion failed: %s", exc)
+
+
+@router.post("/{product_id}/knowledge/{source_id}/reindex", response_model=ImportResponse)
+async def reindex_product_knowledge(product_id: str, source_id: str) -> ImportResponse:
+    from services.exceptions import NotFoundError
+    local_path = Path(BASE_DIR) / "storage" / "local_indexed_documents.json"
+    if not local_path.exists():
+        raise InputValidationError("No local documents found.")
+        
+    try:
+        with open(local_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception as exc:
+        raise InputValidationError(f"Could not read local documents: {exc}")
+        
+    chunks = []
+    for doc_id, doc_info in data.items():
+        meta = doc_info.get("metadata", {})
+        if meta.get("product_id") == product_id and meta.get("source_id") == source_id:
+            chunks.append(KnowledgeDocument(
+                id=doc_id,
+                text=doc_info["text"],
+                metadata=meta
+            ))
+            
+    if not chunks:
+        raise NotFoundError("No chunks found for this document.")
+        
+    indexed_count, job_id = await moss_service.add_documents(chunks)
+    
+    return ImportResponse(
+        imported_count=len(chunks),
+        indexed_count=indexed_count,
+        index_name=moss_service.index_name,
+        job_id=job_id,
+        import_id=f"reindex-{source_id}",
+        product_id=product_id,
+        message=f"Re-indexed {len(chunks)} chunks for document.",
+    )
 
 
 def _complete_import(

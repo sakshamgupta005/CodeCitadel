@@ -1,13 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { DiagnosticResponse, ProductView } from "@/lib/types";
+import Link from "next/link";
+import type { DiagnosticResponse, ProductView, DiagnosticReference } from "@/lib/types";
 
 type Message = {
   role: "ai" | "user";
   text: string;
   citation?: string;
+  snippet?: string | null;
+  section?: string | null;
+  page?: string | null;
   followUp?: string;
+  detectedProductId?: string | null;
+  detectedProductName?: string | null;
 };
 
 const defaultQuickReplies = ["Horizontal bands", "Random light patches", "Faded edges only"];
@@ -15,34 +21,51 @@ const defaultQuickReplies = ["Horizontal bands", "Random light patches", "Faded 
 export function DiagnosticAssistant({
   product,
   initialIssue,
+  allProducts = [],
 }: {
-  product: ProductView;
+  product: ProductView | null;
   initialIssue?: string;
+  allProducts?: ProductView[];
 }) {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [input, setInput] = useState(initialIssue ?? "");
   const [isLoading, setIsLoading] = useState(false);
   const [diagnostic, setDiagnostic] = useState<DiagnosticResponse | null>(null);
+  
   const [messages, setMessages] = useState<Message[]>(() => {
-    if (initialIssue) {
-      return [
-        {
-          role: "ai",
-          text: `I'm analyzing the ${product.name}. Tell me exactly what you're seeing: when it happens, what the output looks like, and any error lights.`,
-        },
-      ];
+    if (product) {
+      if (initialIssue) {
+        return [
+          {
+            role: "ai",
+            text: `I'm analyzing the ${product.name}. Tell me exactly what you're seeing: when it happens, what the output looks like, and any error lights.`,
+          },
+        ];
+      } else {
+        return [
+          {
+            role: "ai",
+            text: `I'm analyzing the ${product.name}. Tell me exactly what you're seeing: when it happens, what the output looks like, and any error lights.`,
+          },
+          {
+            role: "ai",
+            text: "Intermittent symptoms narrow this significantly. I am tracking likely causes against indexed product documentation and will ask targeted follow-up questions.",
+            citation: "📄 Service Manual · Troubleshooting",
+            followUp: "Describe the symptom in as much detail as you can.",
+          },
+        ];
+      }
     } else {
+      // Global diagnostic mode initial messages
       return [
         {
           role: "ai",
-          text: `I'm analyzing the ${product.name}. Tell me exactly what you're seeing: when it happens, what the output looks like, and any error lights.`,
+          text: "I am FixPilot's Global Support Router. Describe the symptoms or product you are having trouble with, and I will search our comprehensive support manuals to diagnose the issue.",
         },
         {
           role: "ai",
-          text:
-            "Intermittent symptoms narrow this significantly. I am tracking likely causes against indexed product documentation and will ask targeted follow-up questions.",
-          citation: "📄 Service Manual · Troubleshooting",
-          followUp: "Describe the symptom in as much detail as you can.",
+          text: "I scan across all registered products to match your problem with the correct technical troubleshooting guide.",
+          followUp: "Please describe the problem you are experiencing in detail.",
         },
       ];
     }
@@ -55,6 +78,11 @@ export function DiagnosticAssistant({
   }, [initialIssue]);
 
   const causes = useMemo(() => {
+    if (!product) {
+      return [
+        { name: "Awaiting symptom analysis...", confidence: 0, color: "var(--text-muted)", eliminated: false }
+      ];
+    }
     if (diagnostic?.probable_causes.length) {
       return diagnostic.probable_causes.map((cause, index) => ({
         name: cause,
@@ -64,13 +92,23 @@ export function DiagnosticAssistant({
       }));
     }
 
+    // Default placeholders matching product categories
+    const isPrinter = product.id.includes("printer") || product.id.includes("laserjet");
+    if (isPrinter) {
+      return [
+        { name: "Drum contamination", confidence: 72, color: "var(--amber)", eliminated: false },
+        { name: "Fuser temperature", confidence: 58, color: "var(--indigo)", eliminated: false },
+        { name: "Toner defect", confidence: 31, color: "var(--text-muted)", eliminated: false },
+        { name: "Paper moisture", confidence: 5, color: "var(--text-muted)", eliminated: true },
+      ];
+    }
+    
     return [
-      { name: "Drum contamination", confidence: 72, color: "var(--amber)", eliminated: false },
-      { name: "Fuser temperature", confidence: 58, color: "var(--indigo)", eliminated: false },
-      { name: "Toner defect", confidence: 31, color: "var(--text-muted)", eliminated: false },
-      { name: "Paper moisture", confidence: 5, color: "var(--text-muted)", eliminated: true },
+      { name: "Connection backhaul drop", confidence: 64, color: "var(--amber)", eliminated: false },
+      { name: "IP lease collision", confidence: 45, color: "var(--indigo)", eliminated: false },
+      { name: "Firmware mismatch", confidence: 22, color: "var(--text-muted)", eliminated: false },
     ];
-  }, [diagnostic]);
+  }, [diagnostic, product]);
 
   async function submit(text: string) {
     const trimmed = text.trim();
@@ -81,34 +119,58 @@ export function DiagnosticAssistant({
     setMessages((current) => [...current, { role: "user", text: trimmed }]);
 
     try {
-      const response = await fetch("/api/diagnose", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          productId: product.id,
-          sessionId,
-          issue: sessionId ? undefined : trimmed,
-          answer: sessionId ? trimmed : undefined,
-        }),
-      });
+      let payload: DiagnosticResponse;
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData?.detail || `API error: ${response.status}`);
+      if (product) {
+        // Product-specific diagnostic
+        const response = await fetch("/api/diagnose", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            productId: product.id,
+            sessionId,
+            issue: sessionId ? undefined : trimmed,
+            answer: sessionId ? trimmed : undefined,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData?.detail || `API error: ${response.status}`);
+        }
+        payload = (await response.json()) as DiagnosticResponse;
+      } else {
+        // Global cross-product diagnostic router
+        const response = await fetch("/api/diagnose/global", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sessionId,
+            issue_description: trimmed,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData?.detail || `API error: ${response.status}`);
+        }
+        payload = (await response.json()) as DiagnosticResponse;
       }
 
-      const payload = (await response.json()) as DiagnosticResponse;
       setDiagnostic(payload);
       setSessionId(payload.session_id);
       setMessages((current) => [
         ...current,
         {
           role: "ai",
-          text: payload.next_step || payload.recommended_action,
-          citation: payload.documentation_references[0]?.title
-            ? `📄 ${payload.documentation_references[0].title}`
-            : "📄 Indexed product docs",
+          text: payload.investigation_reasoning || payload.next_step || payload.recommended_action,
+          citation: payload.documentation_references[0]?.title || undefined,
+          snippet: payload.documentation_references[0]?.snippet || null,
+          section: payload.documentation_references[0]?.section || null,
+          page: payload.documentation_references[0]?.page || null,
           followUp: payload.follow_up_question,
+          detectedProductId: payload.detected_product_id,
+          detectedProductName: payload.detected_product_name,
         },
       ]);
     } catch (error) {
@@ -126,34 +188,50 @@ export function DiagnosticAssistant({
     }
   }
 
+  const quickReplies = product 
+    ? (product.commonIssues?.slice(0, 3) || defaultQuickReplies)
+    : ["My mesh node won't connect", "LaserJet printer jam in Tray 2", "Air Conditioner water leak"];
+
   return (
     <>
-      <div className="page-kicker">Diagnostic Assistant</div>
+      <div className="page-kicker">{product ? "Product Diagnostics" : "Global Router"}</div>
       <div className="page-title-row">
         <div>
-          <h1 className="page-title">Investigation thread, live evidence.</h1>
+          <h1 className="page-title">
+            {product ? `Investigating ${product.name}` : "Support Engineering Desk"}
+          </h1>
           <p className="page-desc">
-            The assistant shows its reasoning path, asks clarifying questions, and keeps citations
-            visible while it narrows the root cause.
+            {product
+              ? `Guided troubleshooting based on indexed manuals, schematics, and field reports for the ${product.name}.`
+              : "Search across our entire hardware line using smart symptom routing and documentation indexing."}
           </p>
         </div>
       </div>
 
       <div className="mock-diagnostic">
-        <InvestigationThread activeStep={diagnostic ? 4 : initialIssue ? 3 : 2} />
+        <InvestigationThread 
+          activeStep={diagnostic ? 4 : initialIssue ? 3 : 2} 
+          isGlobal={!product}
+        />
         <section className="mock-diag-chat">
           <div className="mock-diag-chat-header">
             <div className="mock-diag-product-badge">
-              <div className="mock-diag-product-icon">{product.emoji}</div>
+              <div className="mock-diag-product-icon">
+                {product ? product.emoji : "🔍"}
+              </div>
               <div>
-                <div className="mock-diag-product-name">{product.name}</div>
+                <div className="mock-diag-product-name">
+                  {product ? product.name : "Global Support Router"}
+                </div>
                 <div className="mock-diag-product-mfg">
-                  {product.company} · Session #{sessionId?.slice(0, 7).toUpperCase() ?? "DX-2047"}
+                  {product 
+                    ? `${product.company} · Session #${sessionId?.slice(0, 7).toUpperCase() ?? "DX-2047"}` 
+                    : `Multi-Device Context · Session #${sessionId?.slice(0, 7).toUpperCase() ?? "GLOBAL"}`}
                 </div>
               </div>
             </div>
             <div className="mock-diag-sessions">
-              <span style={{ color: "var(--teal)" }}>●</span> Live · {product.sessions.toLocaleString()} sessions
+              <span style={{ color: "var(--teal)" }}>●</span> Live · {product ? product.sessions.toLocaleString() : "All"} sessions
             </div>
           </div>
 
@@ -165,8 +243,8 @@ export function DiagnosticAssistant({
               <ChatMessage
                 message={{
                   role: "ai",
-                  text: "Analyzing indexed documentation...",
-                  citation: "Moss retrieval active",
+                  text: "Analyzing indexed documentation with Moss...",
+                  citation: "Retrieval engine searching...",
                 }}
               />
             )}
@@ -180,7 +258,7 @@ export function DiagnosticAssistant({
             }}
           >
             <div className="quick-replies">
-              {defaultQuickReplies.map((reply) => (
+              {quickReplies.map((reply) => (
                 <button className="quick-reply" key={reply} onClick={() => void submit(reply)} type="button">
                   {reply}
                 </button>
@@ -190,7 +268,7 @@ export function DiagnosticAssistant({
               <textarea
                 className="mock-chat-input"
                 onChange={(event) => setInput(event.target.value)}
-                placeholder="Describe what you observe..."
+                placeholder={product ? "Describe symptom in detail..." : "Describe symptoms or enter product name..."}
                 rows={1}
                 value={input}
               />
@@ -201,28 +279,34 @@ export function DiagnosticAssistant({
             </div>
           </form>
         </section>
-        <AnalysisPanel causes={causes} diagnostic={diagnostic} />
+        <AnalysisPanel causes={causes} diagnostic={diagnostic} isGlobal={!product} />
       </div>
     </>
   );
 }
 
-function InvestigationThread({ activeStep }: { activeStep: number }) {
-  const steps = [
-    ["Symptom Intake", "Faded print + no warning light. Intermittent."],
-    ["Cause Generation", "4 possible causes identified from manuals."],
-    ["Question Phase", "Clarifying pattern and frequency to narrow causes."],
-    ["Inspection", "Recommended checks are being assembled."],
-    ["Cause Elimination", "Awaiting more evidence."],
-    ["Root Cause", "—"],
-    ["Resolution", "—"],
+function InvestigationThread({ activeStep, isGlobal }: { activeStep: number; isGlobal: boolean }) {
+  const steps = isGlobal ? [
+    ["Symptom Intake", "Analyzing global problem description."],
+    ["Cross-Product Search", "Scanning documentation across registered products."],
+    ["Device Routing", "Determining hardware guide context matches."],
+    ["Inspection Selection", "Awaiting redirection to diagnostic console."],
+  ] : [
+    ["Symptom Intake", "Identifying initial hardware symptom details."],
+    ["Cause Generation", "Scanning documentation chunks for probable causes."],
+    ["Clarification", "Narrowing down failure points via targeted queries."],
+    ["Inspection Action", "Executing recommended technician checks."],
+    ["Elimination Phase", "Ruling out non-applicable failure causes."],
+    ["Root Cause Found", "—"],
   ];
 
   return (
     <aside className="mock-diag-left">
       <div className="mock-diag-left-header">
-        <div className="mock-diag-left-title">Investigation Thread</div>
-        <div className="mock-diag-status">Analyzing · Phase {activeStep}</div>
+        <div className="mock-diag-left-title">Diagnostic Process</div>
+        <div className="mock-diag-status" style={isGlobal ? { background: "var(--violet-glow)", color: "var(--violet-light)", borderColor: "rgba(124,58,237,0.3)" } : undefined}>
+          {isGlobal ? "Routing Console" : `Technician Phase ${activeStep}`}
+        </div>
       </div>
       <div className="mock-thread">
         {steps.map(([label, text], index) => {
@@ -238,7 +322,7 @@ function InvestigationThread({ activeStep }: { activeStep: number }) {
               </div>
               <div className="mock-thread-body">
                 <div className={`mock-thread-step ${state === "pending" ? "" : state}`}>{label}</div>
-                <div className="mock-thread-text">{state === "pending" && step > 4 ? "—" : text}</div>
+                <div className="mock-thread-text">{state === "pending" && step > 3 ? "—" : text}</div>
               </div>
             </div>
           );
@@ -253,11 +337,78 @@ function ChatMessage({ message }: { message: Message }) {
 
   return (
     <div className={`mock-msg ${isUser ? "user" : ""}`}>
-      <div className={`mock-avatar ${isUser ? "user" : "ai"}`}>{isUser ? "U" : "🧠"}</div>
-      <div>
-        <div className={`mock-bubble ${isUser ? "user" : "ai"}`}>
-          {message.text}
-          {message.citation && <div className="mock-bubble-citation">{message.citation}</div>}
+      <div className={`mock-avatar ${isUser ? "user" : "ai"}`}>{isUser ? "U" : "⚙️"}</div>
+      <div style={{ width: "100%", maxWidth: isUser ? "80%" : "90%" }}>
+        <div className={`mock-bubble ${isUser ? "user" : "ai"}`} style={{ width: "100%" }}>
+          <div style={{ whiteSpace: "pre-wrap" }}>{message.text}</div>
+          
+          {message.citation && (
+            <div style={{
+              marginTop: "12px",
+              padding: "10px 12px",
+              background: "var(--bg-elevated)",
+              border: "1px solid var(--border)",
+              borderLeft: "3px solid var(--violet)",
+              borderRadius: "8px",
+              fontSize: "12px",
+              lineHeight: "1.4"
+            }}>
+              <div style={{ fontWeight: 700, display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
+                <span style={{ color: "var(--text-primary)" }}>📖 {message.citation}</span>
+                <span style={{ color: "var(--text-muted)", fontSize: "11px" }}>
+                  {message.section ? `${message.section}` : ""}
+                  {message.page ? ` · Page ${message.page}` : ""}
+                </span>
+              </div>
+              {message.snippet && (
+                <div style={{ color: "var(--text-secondary)", fontStyle: "italic", fontSize: "11.5px", marginTop: "4px" }}>
+                  "{message.snippet}"
+                </div>
+              )}
+            </div>
+          )}
+
+          {message.detectedProductId && message.detectedProductName && (
+            <div style={{
+              marginTop: "16px",
+              padding: "14px",
+              borderRadius: "10px",
+              background: "var(--bg-elevated)",
+              border: "1px solid rgba(124, 58, 237, 0.3)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "10px"
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <span style={{ fontSize: "20px" }}>⚙️</span>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: "13.5px", color: "var(--text-primary)" }}>
+                    {message.detectedProductName}
+                  </div>
+                  <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>
+                    Identified device matches symptom profile
+                  </div>
+                </div>
+              </div>
+              <Link
+                href={`/diagnostic?productId=${message.detectedProductId}&issue=${encodeURIComponent(message.detectedProductName)}`}
+                className="mock-fix-btn"
+                style={{
+                  display: "block",
+                  textAlign: "center",
+                  padding: "8px 12px",
+                  background: "linear-gradient(135deg, var(--violet), var(--violet-light))",
+                  color: "white",
+                  borderRadius: "6px",
+                  fontWeight: 600,
+                  fontSize: "12.5px",
+                  boxShadow: "0 2px 8px rgba(124,58,237,0.3)"
+                }}
+              >
+                ⚡ Open {message.detectedProductName} Diagnostics →
+              </Link>
+            </div>
+          )}
         </div>
         {message.followUp && (
           <div className="mock-followup">
@@ -273,52 +424,60 @@ function ChatMessage({ message }: { message: Message }) {
 function AnalysisPanel({
   causes,
   diagnostic,
+  isGlobal,
 }: {
   causes: Array<{ name: string; confidence: number; color: string; eliminated: boolean }>;
   diagnostic: DiagnosticResponse | null;
+  isGlobal: boolean;
 }) {
   const inspections = diagnostic
     ? [diagnostic.next_step, diagnostic.recommended_action].filter(Boolean)
-    : ["Print a drum test page via Settings > Reports", "Remove drum unit and check for streaks"];
+    : isGlobal 
+      ? ["Input your symptoms to filter catalog", "Identify which device model matches query"]
+      : ["Perform check of cable interface", "Inspect LED indicators for status color"];
+      
   const references = diagnostic?.documentation_references.length
-    ? diagnostic.documentation_references.slice(0, 2)
-    : [
-        { title: "Service Manual", snippet: "pp. 47-49 · Drum Unit" },
-        { title: "User Guide", snippet: "p. 112 · Fuser Assembly" },
-      ];
+    ? diagnostic.documentation_references.slice(0, 3)
+    : [];
 
   return (
     <aside className="mock-diag-right">
       <div className="mock-panel-section">
         <div className="mock-panel-title">Suspected Causes</div>
-        {causes.map((cause) => (
-          <div className="mock-cause-item" key={cause.name} style={{ opacity: cause.eliminated ? 0.5 : 1 }}>
-            <div
-              className="mock-cause-name"
-              style={{
-                color: cause.eliminated ? "var(--text-muted)" : undefined,
-                textDecoration: cause.eliminated ? "line-through" : undefined,
-              }}
-            >
-              {cause.name}
-            </div>
-            <div className="mock-cause-bar-wrap">
-              <div
-                className="mock-cause-bar"
-                style={{ width: `${cause.confidence}%`, background: cause.color }}
-              />
-            </div>
-            <div className="mock-cause-conf">
-              {cause.eliminated ? (
-                <span style={{ color: "var(--red)" }}>✕ Eliminated</span>
-              ) : (
-                <>
-                  Confidence: <span>{cause.confidence}%</span>
-                </>
-              )}
-            </div>
+        {isGlobal && !diagnostic ? (
+          <div style={{ color: "var(--text-muted)", fontSize: "12px", padding: "8px 0" }}>
+            Awaiting symptom description to cross-reference guides.
           </div>
-        ))}
+        ) : (
+          causes.map((cause) => (
+            <div className="mock-cause-item" key={cause.name} style={{ opacity: cause.eliminated ? 0.5 : 1 }}>
+              <div
+                className="mock-cause-name"
+                style={{
+                  color: cause.eliminated ? "var(--text-muted)" : undefined,
+                  textDecoration: cause.eliminated ? "line-through" : undefined,
+                }}
+              >
+                {cause.name}
+              </div>
+              <div className="mock-cause-bar-wrap">
+                <div
+                  className="mock-cause-bar"
+                  style={{ width: `${cause.confidence}%`, background: cause.color }}
+                />
+              </div>
+              <div className="mock-cause-conf">
+                {cause.eliminated ? (
+                  <span style={{ color: "var(--red)" }}>✕ Eliminated</span>
+                ) : (
+                  <>
+                    Confidence: <span>{cause.confidence}%</span>
+                  </>
+                )}
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       <div className="mock-panel-section">
@@ -333,15 +492,30 @@ function AnalysisPanel({
 
       <div className="mock-panel-section">
         <div className="mock-panel-title">Source Citations</div>
-        {references.map((reference, index) => (
-          <div className="mock-doc-ref" key={`${reference.title}-${index}`}>
-            <div className="mock-doc-icon">📘</div>
-            <div className="mock-doc-info">
-              <div className="mock-doc-title">{reference.title ?? "Indexed source"}</div>
-              <div className="mock-doc-page">{reference.snippet ?? "Product documentation"}</div>
-            </div>
+        {isGlobal && !diagnostic ? (
+          <div style={{ color: "var(--text-muted)", fontSize: "12px" }}>
+            Citations will appear when matching references are found in manuals.
           </div>
-        ))}
+        ) : references.length === 0 ? (
+          <div style={{ color: "var(--text-muted)", fontSize: "12px" }}>
+            No matching documents cited yet.
+          </div>
+        ) : (
+          references.map((reference, index) => (
+            <div className="mock-doc-ref" key={`${reference.title}-${index}`}>
+              <div className="mock-doc-icon">📘</div>
+              <div className="mock-doc-info" style={{ minWidth: 0, flex: 1 }}>
+                <div className="mock-doc-title" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={reference.title || "Manual"}>
+                  {reference.title ?? "Product manual"}
+                </div>
+                <div className="mock-doc-page" style={{ fontSize: "10.5px", color: "var(--text-muted)" }}>
+                  {reference.section ? `${reference.section}` : ""}
+                  {reference.page ? ` · Page ${reference.page}` : ""}
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </aside>
   );

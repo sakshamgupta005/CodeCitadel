@@ -43,6 +43,7 @@ export async function POST(request: Request) {
         "Loose connection, blocked component, or worn consumable",
         "Recent usage pattern or environment change",
       ],
+      investigation_reasoning: `Analyzing the symptom profile: "${symptom}" on ${product?.name ?? "this product"}. Checking common issues matching documentation.`,
       follow_up_question: "When did this start, and did anything change right before it happened?",
       next_step: `Check the visible status indicators and reproduce this symptom once: ${symptom}.`,
       recommended_action: "Record any error light, code, noise, or timing pattern, then inspect the product documentation added for this item.",
