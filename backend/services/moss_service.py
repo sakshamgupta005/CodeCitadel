@@ -5,9 +5,15 @@ import logging
 import json
 import re
 from pathlib import Path
-from typing import Sequence
+from typing import Any, Sequence
 
-from moss import DocumentInfo, MossClient, MutationOptions, QueryOptions
+try:
+    from moss import DocumentInfo, MossClient, MutationOptions, QueryOptions
+except ImportError:
+    DocumentInfo = None  # type: ignore[assignment]
+    MossClient = None  # type: ignore[assignment]
+    MutationOptions = None  # type: ignore[assignment]
+    QueryOptions = None  # type: ignore[assignment]
 
 from models.schemas import KnowledgeDocument, SearchResultItem
 from services.config import get_settings, BASE_DIR
@@ -19,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 class MossService:
     def __init__(self) -> None:
-        self._client: MossClient | None = None
+        self._client: Any | None = None
         self._loaded_index = False
 
     @property
@@ -27,8 +33,12 @@ class MossService:
         return get_settings().moss_index_name
 
     @property
-    def client(self) -> MossClient:
+    def client(self) -> Any:
         if self._client is None:
+            if MossClient is None:
+                raise ConfigurationError(
+                    "Moss SDK is not installed. Local knowledge search fallback is active."
+                )
             settings = get_settings()
             if not settings.moss_project_id or not settings.moss_project_key:
                 raise ConfigurationError(
@@ -77,7 +87,7 @@ class MossService:
             result = await self.client.add_docs(
                 self.index_name,
                 self._to_moss_documents(documents),
-                MutationOptions(upsert=True),
+                MutationOptions(upsert=True) if MutationOptions is not None else None,
             )
             await self._wait_for_job(getattr(result, "job_id", None))
             await self._load_index_best_effort(force=True)
@@ -99,7 +109,7 @@ class MossService:
             result = await self.client.query(
                 self.index_name,
                 query,
-                QueryOptions(top_k=top_k, alpha=settings.moss_search_alpha),
+                QueryOptions(top_k=top_k, alpha=settings.moss_search_alpha) if QueryOptions is not None else None,
             )
             docs = getattr(result, "docs", [])
             cloud_results = [self._to_search_item(document) for document in docs]
@@ -253,7 +263,9 @@ class MossService:
         return results[:top_k]
 
     @staticmethod
-    def _to_moss_documents(documents: Sequence[KnowledgeDocument]) -> list[DocumentInfo]:
+    def _to_moss_documents(documents: Sequence[KnowledgeDocument]) -> list[Any]:
+        if DocumentInfo is None:
+            raise ConfigurationError("Moss SDK is not installed.")
         return [
             DocumentInfo(id=document.id, text=document.text, metadata=document.metadata)
             for document in documents
