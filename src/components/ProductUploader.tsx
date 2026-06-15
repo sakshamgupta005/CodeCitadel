@@ -5,6 +5,8 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import { createProduct } from "@/lib/api";
 
+const DEFAULT_PRODUCT_IMAGE_URL = "https://images.unsplash.com/photo-1558618666-fcd25c85cd64";
+
 export function ProductUploader() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
@@ -38,7 +40,7 @@ export function ProductUploader() {
         name: name.trim(),
         category,
         description: description.trim(),
-        image_url: imageUrl.trim() || "",
+        image_url: imageUrl.trim() || DEFAULT_PRODUCT_IMAGE_URL,
       });
 
       reset();

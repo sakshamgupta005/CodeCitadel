@@ -1,7 +1,15 @@
 from __future__ import annotations
 
-from models.schemas import DiagnosticReference, DiagnosticRequest, DiagnosticResponse, Product, SearchResultItem, DiagnosticSparePart
-from services.exceptions import InputValidationError
+from models.schemas import (
+    DiagnosticReference,
+    DiagnosticRequest,
+    DiagnosticResponse,
+    DiagnosticSparePart,
+    DiagnosticVisualAnalysis,
+    Product,
+    SearchResultItem,
+)
+from services.exceptions import ConfigurationError, ExternalServiceError, InputValidationError
 from services.llm_service import LLMService
 from services.moss_service import MossService
 from services.product_store import ProductStore, product_store
@@ -80,14 +88,37 @@ class DiagnosticService:
                 documentation_references=[],
             )
 
-        diagnosis = await self.llm_service.diagnose_product_issue(
-            product_name=product.name,
-            issue_description=issue_description,
-            documents=documents,
-            diagnostic_history=history,
-            image_data=payload.image_data,
-            image_mime_type=payload.image_mime_type,
-        )
+        try:
+            diagnosis = await self.llm_service.diagnose_product_issue(
+                product_name=product.name,
+                issue_description=issue_description,
+                documents=documents,
+                diagnostic_history=history,
+                image_data=payload.image_data,
+                image_mime_type=payload.image_mime_type,
+            )
+        except (ConfigurationError, ExternalServiceError) as exc:
+            response = self._diagnostic_unavailable_response(
+                session_id=str(session["id"]),
+                issue_description=issue_description,
+                documents=documents,
+                image_attached=bool(payload.image_data),
+                product=product,
+                reason=str(exc),
+            )
+            self.store.update_diagnostic_session(
+                session_id=str(session["id"]),
+                probable_causes=response.probable_causes,
+                possible_causes=[cause.model_dump() for cause in response.possible_causes],
+                eliminated_causes=[cause.model_dump() for cause in response.eliminated_causes],
+                most_likely_cause=response.most_likely_cause,
+                confidence=response.confidence,
+                latest_question=response.follow_up_question,
+                next_step=response.next_step,
+                recommended_action=response.recommended_action,
+                investigation_reasoning=response.investigation_reasoning,
+            )
+            return response
 
         self.store.update_diagnostic_session(
             session_id=str(session["id"]),
@@ -178,12 +209,22 @@ class DiagnosticService:
             )
 
         # Diagnose global issue
-        diagnosis = await self.llm_service.diagnose_global_issue(
-            issue_description=issue_description,
-            documents=documents,
-            image_data=payload.image_data,
-            image_mime_type=payload.image_mime_type,
-        )
+        try:
+            diagnosis = await self.llm_service.diagnose_global_issue(
+                issue_description=issue_description,
+                documents=documents,
+                image_data=payload.image_data,
+                image_mime_type=payload.image_mime_type,
+            )
+        except (ConfigurationError, ExternalServiceError) as exc:
+            return self._diagnostic_unavailable_response(
+                session_id=session_id,
+                issue_description=issue_description,
+                documents=documents,
+                image_attached=bool(payload.image_data),
+                product=None,
+                reason=str(exc),
+            )
 
         return DiagnosticResponse(
             session_id=session_id,
@@ -308,6 +349,92 @@ class DiagnosticService:
                 )
             )
         return references
+
+    def _diagnostic_unavailable_response(
+        self,
+        session_id: str,
+        issue_description: str,
+        documents: list[SearchResultItem],
+        image_attached: bool,
+        product: Product | None,
+        reason: str,
+    ) -> DiagnosticResponse:
+        product_context = product.name if product else self._detected_product_name(documents)
+        context_line = (
+            f"for {product_context}" if product_context else "across the product catalog"
+        )
+        investigation_reasoning = (
+            "Current Understanding:\n"
+            f"The symptom was received {context_line}: {issue_description}\n\n"
+            "Most Likely Causes:\n"
+            "1. The AI diagnostic engine is temporarily unavailable.\n"
+            "2. The backend may be missing the Gemini API key in its deployment environment.\n"
+            "3. Documentation search can still be used, but model-based reasoning could not run.\n\n"
+            "Next Diagnostic Question:\n"
+            "What exact product model, error code, status light, or behavior do you see?\n\n"
+            "Reason:\n"
+            "Those details can still help narrow the issue while the diagnostic model configuration is restored."
+        )
+        recommended_action = (
+            "Recommendation:\n"
+            "Verify the backend deployment has GEMINI_API_KEY configured, then retry this diagnostic request.\n\n"
+            "Evidence:\n"
+            f"{reason}\n\n"
+            "Source:\n"
+            "Document Name: Runtime configuration\n"
+            "Page Number: Not available\n"
+            "Section Heading: Environment variables"
+        )
+        detected_product_id = product.id if product else self._detected_product_id(documents)
+        detected_product_name = product.name if product else self._detected_product_name(documents)
+        return DiagnosticResponse(
+            session_id=session_id,
+            probable_causes=["AI diagnostic engine unavailable"],
+            possible_causes=[
+                {
+                    "cause": "AI diagnostic engine unavailable",
+                    "probability": 0.0,
+                    "status": "possible",
+                    "evidence": reason,
+                }
+            ],
+            eliminated_causes=[],
+            most_likely_cause="AI diagnostic engine unavailable",
+            confidence="low",
+            investigation_reasoning=investigation_reasoning,
+            follow_up_question="What exact product model, error code, status light, or behavior do you see?",
+            next_step="Restore backend AI configuration and retry the diagnostic request.",
+            recommended_action=recommended_action,
+            documentation_references=self._references(documents),
+            visual_analysis=DiagnosticVisualAnalysis(
+                visible_items=[],
+                confidence="low",
+                relevance_to_issue="A photo was attached, but the AI vision diagnostic engine is unavailable.",
+                additional_photos_required=["Retry the upload after backend AI configuration is restored."],
+                safety_notes=[],
+            )
+            if image_attached
+            else None,
+            spare_parts=[],
+            detected_product_id=detected_product_id,
+            detected_product_name=detected_product_name,
+        )
+
+    @staticmethod
+    def _detected_product_id(documents: list[SearchResultItem]) -> str | None:
+        for document in documents:
+            product_id = document.metadata.get("product_id")
+            if product_id:
+                return product_id
+        return None
+
+    @staticmethod
+    def _detected_product_name(documents: list[SearchResultItem]) -> str | None:
+        for document in documents:
+            product_name = document.metadata.get("product_name")
+            if product_name:
+                return product_name
+        return None
 
 
 diagnostic_service = DiagnosticService()

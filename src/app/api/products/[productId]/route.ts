@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { API_BASE_URL } from "@/lib/api";
+import { backendErrorDetail } from "@/lib/api-error";
 import { deleteStoredProduct, readStoredProduct, updateStoredProduct } from "@/lib/server-product-store";
 
 export async function GET(
@@ -34,7 +35,7 @@ export async function PUT(
     });
 
     if (!response.ok) {
-      const errorMsg = await response.text();
+      const errorMsg = await backendErrorDetail(response, "Failed to update product");
       return NextResponse.json({ detail: errorMsg || "Failed to update product" }, { status: response.status });
     }
 
@@ -62,7 +63,7 @@ export async function DELETE(
     });
 
     if (!response.ok) {
-      const errorMsg = await response.text();
+      const errorMsg = await backendErrorDetail(response, "Failed to delete product");
       return NextResponse.json({ detail: errorMsg || "Failed to delete product" }, { status: response.status });
     }
 

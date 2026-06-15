@@ -115,7 +115,7 @@ class ProductCreate(BaseModel):
     name: str = Field(..., min_length=1, examples=["Moss Router X1"])
     category: str = Field(..., min_length=1, examples=["Networking"])
     description: str = Field(..., min_length=1)
-    image_url: str = Field(..., min_length=1)
+    image_url: str = ""
 
 
 class Product(BaseModel):

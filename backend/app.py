@@ -9,6 +9,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from models.schemas import ErrorResponse, ImportStatusResponse
 from routes import chat, products
+from services.config import get_settings
 from services.exceptions import AppError
 from services.import_tracker import import_tracker
 
@@ -58,8 +59,18 @@ async def unhandled_error_handler(_: Request, exc: Exception) -> JSONResponse:
 
 
 @app.get("/health", tags=["system"])
-async def health() -> dict[str, str]:
-    return {"status": "ok"}
+async def health() -> dict[str, object]:
+    settings = get_settings()
+    gemini_configured = bool(settings.gemini_api_key)
+    moss_configured = bool(settings.moss_project_id and settings.moss_project_key)
+    return {
+        "status": "ok" if gemini_configured else "degraded",
+        "checks": {
+            "api": "ok",
+            "gemini_configured": gemini_configured,
+            "moss_configured": moss_configured,
+        },
+    }
 
 
 @app.get("/import/status", response_model=ImportStatusResponse, tags=["imports"])

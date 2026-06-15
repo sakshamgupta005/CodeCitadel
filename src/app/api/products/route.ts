@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { API_BASE_URL } from "@/lib/api";
+import { backendErrorDetail } from "@/lib/api-error";
 import { createStoredProduct, readStoredProducts } from "@/lib/server-product-store";
 
 export async function GET(request: Request) {
@@ -30,7 +31,7 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
-      const errorMsg = await response.text();
+      const errorMsg = await backendErrorDetail(response, "Failed to create product");
       return NextResponse.json({ detail: errorMsg || "Failed to create product" }, { status: response.status });
     }
 
